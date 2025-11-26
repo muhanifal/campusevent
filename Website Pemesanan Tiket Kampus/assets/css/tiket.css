@@ -1,0 +1,157 @@
+/* ============================= */
+/* RESET & GLOBAL STYLING BIASA  */
+/* ============================= */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Poppins', sans-serif;
+    background-color: #f4f7fa;
+    color: #333;
+    line-height: 1.6;
+}
+
+/* ============================= */
+/* HEADER                        */
+/* ============================= */
+.header {
+    background-color: #1e3a8a;
+    color: #fff;
+    padding: 2rem 1rem;
+    text-align: center;
+    position: relative;
+}
+
+.header h1 {
+    font-size: 2.2rem;
+    margin-bottom: 1rem;
+}
+
+.btn-back {
+    position: absolute;
+    top: 50%;
+    left: 2rem;
+    transform: translateY(-50%);
+    text-decoration: none;
+    color: #1e3a8a;
+    background-color: #fff;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    font-weight: 500;
+    transition: 0.3s;
+}
+
+.btn-back:hover {
+    background-color: #dbeafe;
+}
+
+/* ============================= */
+/* TIKET CONTAINER               */
+/* ============================= */
+.ticket-container {
+    max-width: 600px;
+    margin: 3rem auto 5rem auto;
+    background-color: #fff;
+    padding: 2rem;
+    border-radius: 15px;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+    transition: all 0.3s ease-in-out;
+}
+
+.ticket-container:hover {
+    box-shadow: 0 12px 30px rgba(0,0,0,0.15);
+}
+
+.ticket-container h2 {
+    font-size: 1.8rem;
+    margin-bottom: 1.5rem;
+    color: #1e3a8a;
+    text-align: center;
+}
+
+/* ============================= */
+/* TIKET BOX                     */
+/* ============================= */
+.ticket-box {
+    background-color: #f1f5f9;
+    padding: 2rem;
+    border-radius: 12px;
+    text-align: center;
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.ticket-box:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+}
+
+/* ============================= */
+/* TIKET DETAIL                  */
+.ticket {
+    text-align: left;
+}
+
+.ticket h3 {
+    font-size: 1.5rem;
+    color: #1e3a8a;
+    margin-bottom: 1rem;
+}
+
+.ticket p {
+    margin-bottom: 0.8rem;
+    font-size: 1rem;
+}
+
+.qr-wrapper {
+    display: flex;
+    justify-content: center;
+    margin: 1.5rem 0;
+}
+
+.qr-code {
+    width: 180px;
+    height: 180px;
+    border: 4px solid #1e3a8a;
+    border-radius: 12px;
+}
+
+.note {
+    font-style: italic;
+    text-align: center;
+    color: #475569;
+    margin-top: 1rem;
+}
+
+/* ============================= */
+/* RESPONSIVE DESIGN             */
+/* ============================= */
+@media (max-width: 768px) {
+    .header h1 {
+        font-size: 1.8rem;
+    }
+
+    .btn-back {
+        left: 1rem;
+    }
+
+    .ticket-container {
+        margin: 2rem 1rem;
+        padding: 1.5rem;
+    }
+
+    .ticket h3 {
+        font-size: 1.3rem;
+    }
+
+    .ticket p {
+        font-size: 0.95rem;
+    }
+
+    .qr-code {
+        width: 150px;
+        height: 150px;
+    }
+}

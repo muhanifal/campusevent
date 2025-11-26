@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detail Acara | Ticketing Kampus</title>
+    <link rel="stylesheet" href="assets/css/global.css">
+    <link rel="stylesheet" href="assets/css/detail.css">
+
+</head>
+<body>
+
+<!-- ========================== -->
+<!-- NAVBAR -->
+<!-- ========================== -->
+<header class="navbar">
+    <div class="nav-container">
+        <h2 class="nav-logo">Ticketing Kampus</h2>
+        <nav>
+            <a href="index.html">Beranda</a>
+            <a href="acara.html">Acara</a>
+        </nav>
+    </div>
+</header>
+
+<!-- ========================== -->
+<!-- DETAIL ACARA -->
+<!-- ========================== -->
+<section class="detail-container">
+
+    <div class="detail-content">
+
+        <img id="eventPoster" src="" alt="Poster Acara" class="detail-img">
+
+        <div class="detail-info">
+            <h1 id="eventTitle">Judul Acara</h1>
+
+            <p><strong>Tanggal:</strong> <span id="eventDate"></span></p>
+            <p><strong>Lokasi:</strong> <span id="eventLocation"></span></p>
+            <p><strong>Harga:</strong> <span id="eventPrice"></span></p>
+
+            <h3>Deskripsi Acara</h3>
+            <p id="eventDesc"></p>
+            <div class="badge">Tiket Tersisa: 20</div>
+            <div class="rating">⭐⭐⭐⭐☆ (4.0)</div>
+            <div id="countdown"></div>
+
+
+            <a id="pesanBtn" href="#" class="btn-primary">Pesan Tiket</a>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- ========================== -->
+<!-- SCRIPT DATA ACARA -->
+<!-- ========================== -->
+<script>
+    const eventData = {
+        "seminar-teknologi": {
+            title: "Seminar Teknologi",
+            date: "12 Januari 2026",
+            location: "Aula Kampus",
+            price: "Rp 20.000",
+            poster: "img/posseminartek.png",
+            desc: "Seminar mengenai perkembangan teknologi terbaru di dunia industri dan pendidikan."
+        },
+        "workshop-uiux": {
+            title: "Workshop UI/UX",
+            date: "20 Januari 2026",
+            location: "Lab Informatika",
+            price: "Rp 30.000",
+            poster: "img/posworkshop.png",
+            desc: "Pelatihan intensif desain UI/UX untuk mahasiswa pemula hingga menengah."
+        },
+        "konser-musik": {
+            title: "Konser Musik Kampus",
+            date: "5 Februari 2026",
+            location: "Lapangan Utama",
+            price: "Rp 50.000",
+            poster: "img/posmusik.png",
+            desc: "Konser tahunan kampus yang menghadirkan band dan musisi mahasiswa."
+        },
+        "festival-budaya": {
+            title: "Festival Budaya Nusantara",
+            date: "17 Februari 2026",
+            location: "Lapangan Barat Kampus",
+            price: "Rp 15.000",
+            poster: "img/posfestival.png",
+            desc: "Acara tahunan untuk memperingati keberagaman budaya Indonesia melalui seni dan kuliner."
+        },
+        "turnamen-esport": {
+            title: "Turnamen E-Sport Kampus",
+            date: "25 Februari 2026",
+            location: "Auditorium",
+            price: "Rp 35.000",
+            poster: "img/posturnamen.png",
+            desc: "Kompetisi e-sport tingkat kampus untuk game populer seperti MLBB, Valorant, dan PUBG."
+        },
+        "seminar-karir": {
+            title: "Seminar Karir & CV Building",
+            date: "3 Maret 2026",
+            location: "Ruang Seminar Lantai 2",
+            price: "Rp 10.000",
+            poster: "img/posseminarkarir.png",
+            desc: "Pelatihan intensif untuk mahasiswa yang ingin mempersiapkan diri menghadapi dunia kerja. Acara ini mencakup langkah-langkah membuat CV yang menarik, strategi menjawab pertanyaan interview, hingga tips membangun personal branding yang kuat. Para peserta juga akan mendapatkan simulasi interview langsung dari praktisi HR profesional serta insight mengenai tren rekrutmen terkini. Cocok untuk mahasiswa yang ingin meningkatkan peluang diterima di perusahaan impian mereka."
+        },
+        "seminar-startup": {
+            title: "Seminar Startup & Bisnis",
+            date: "10 Maret 2026",
+            location: "Aula Lantai 1",
+            price: "Rp 25.000",
+            poster: "img/startupbusiness.png",
+            desc: "Seminar interaktif yang membahas proses membangun startup dari ide awal hingga produk siap diluncurkan ke pasar. Peserta akan belajar tentang validasi ide, pengembangan produk, strategi pemasaran, hingga manajemen tim dan keuangan. Praktisi startup berpengalaman akan berbagi studi kasus nyata dan tips praktis agar bisnis bisa berjalan efektif. Acara ini cocok bagi mahasiswa yang ingin menekuni dunia wirausaha atau membangun startup sendiri."
+        },
+        "workshop-python": {
+            title: "Workshop Python & AI",
+            date: "15 Maret 2026",
+            location: "Lab Komputer",
+            price: "Rp 40.000",
+            poster: "img/pythonwokrshop.png",
+            desc: "Workshop ini dirancang untuk mahasiswa yang baru ingin mengenal dunia programming dan kecerdasan buatan. Peserta akan belajar dasar-dasar Python, logika pemrograman, hingga implementasi sederhana AI menggunakan library populer. Selain teori, peserta akan langsung praktik membuat proyek kecil seperti prediksi data sederhana dan chatbot. Acara ini bertujuan memberi pondasi kuat untuk mahasiswa yang ingin mendalami teknologi AI dan programming lebih lanjut."
+        },
+        "konser-band": {
+            title: "Konser Band Mahasiswa",
+            date: "20 Maret 2026",
+            location: "Lapangan Utama",
+            price: "Rp 45.000",
+            poster: "img/mahasiswaband.png",
+            desc: "Konser yang menampilkan band-band mahasiswa terbaik dari berbagai fakultas di kampus. Acara ini bukan hanya hiburan musik, tapi juga wadah bagi talenta mahasiswa untuk menunjukkan kreativitas dan kemampuan mereka di atas panggung. Selain penampilan band, acara juga menghadirkan sesi interaksi dengan penonton, merchandise unik, dan kesempatan untuk bertemu dengan musisi lain. Cocok untuk semua mahasiswa yang ingin menikmati musik live dan mendukung teman-temannya."
+        },
+        "hackathon": {
+            title: "Hackathon Kampus",
+            date: "28 Maret 2026",
+            location: "Lab Informatika",
+            price: "Rp 30.000",
+            poster: "img/hackathonkampus.png",
+            desc: "Kompetisi intensif selama 24 jam di mana peserta harus memecahkan masalah nyata dengan solusi berbasis coding. Tim peserta akan ditantang untuk mengembangkan aplikasi atau software kreatif dari nol, mulai dari desain hingga implementasi. Acara ini tidak hanya mengasah kemampuan programming, tapi juga teamwork, manajemen waktu, dan problem solving. Hackathon ini ideal untuk mahasiswa yang ingin menguji skill mereka dan berkompetisi dengan teman-teman selevel."
+        },
+        "seminar-inovasi": {
+            title: "Seminar Inovasi Kampus",
+            date: "2 April 2026",
+            location: "Aula Lantai 2",
+            price: "Rp 20.000",
+            poster: "img/seminarinovasikampus.png",
+            desc: "Seminar yang menyoroti inovasi-inovasi kreatif dari mahasiswa di berbagai bidang. Acara ini mencakup presentasi ide, diskusi, dan workshop singkat tentang bagaimana mengembangkan ide menjadi proyek nyata. Peserta akan mendapatkan insight tentang tren inovasi terkini, teknik berpikir kreatif, dan strategi implementasi ide. Seminar ini bertujuan mendorong mahasiswa untuk berani bereksperimen dan mewujudkan ide-ide mereka menjadi solusi nyata di masyarakat."
+        },
+        "workshop-design": {
+            title: "Workshop Desain Grafis",
+            date: "5 April 2026",
+            location: "Lab Seni & Kreatif",
+            price: "Rp 35.000",
+            poster: "img/workshopdesaingrafis.png",
+            desc: "Workshop praktis bagi mahasiswa yang ingin belajar desain grafis dari dasar hingga level menengah. Materi mencakup penggunaan software populer, prinsip desain, tipografi, layout, dan warna, hingga pembuatan portofolio profesional. Peserta juga akan mendapat tugas praktik untuk mengasah kreativitas mereka serta feedback dari instruktur berpengalaman. Acara ini cocok bagi siapa saja yang ingin mengembangkan kemampuan visual dan desain untuk kebutuhan akademik maupun karir."
+        }
+
+    };
+
+    // Ambil ID dari URL
+    const params = new URLSearchParams(window.location.search);
+    const eventID = params.get("id");
+
+    // Ambil datanya
+    const data = eventData[eventID];
+
+
+    if (!data) {
+        document.body.innerHTML = "<h2 style='text-align:center; margin-top:50px;'>Acara tidak ditemukan.</h2>";
+    } else {
+        document.getElementById("eventPoster").src = data.poster;
+        document.getElementById("eventTitle").textContent = data.title;
+        document.getElementById("eventDate").textContent = data.date;
+        document.getElementById("eventLocation").textContent = data.location;
+        document.getElementById("eventPrice").textContent = data.price;
+        document.getElementById("eventDesc").textContent = data.desc;
+
+        // Tombol pesan tiket diarahkan ke pesan.html?id=eventID
+        document.getElementById("pesanBtn").href = "pesan.html?id=" + eventID;
+    }
+     // COUNTDOWN
+    function countdown(dateString) {
+        const event = new Date(dateString).getTime();
+        setInterval(() => {
+            const now = new Date().getTime();
+            const diff = event - now;
+
+            if (diff <= 0) {
+                document.getElementById("countdown").textContent = "Acara Sedang Berlangsung!";
+                return;
+            }
+
+            const d = Math.floor(diff / (1000*60*60*24));
+            const h = Math.floor((diff % (1000*60*60*24)) / (1000*60*60));
+            const m = Math.floor((diff % (1000*60*60)) / (1000*60));
+
+            document.getElementById("countdown").textContent =
+                `Dimulai dalam ${d} hari ${h} jam ${m} menit`;
+        }, 1000);
+    }
+
+    countdown(data.date);   
+
+
+    // ==================================================
+    // PARALLAX EFFECT
+    const parallax = document.querySelector(".detail-container::before");
+    window.addEventListener("scroll", () => {
+        const offset = window.pageYOffset;
+        document.querySelector(".detail-container::before").style.transform = `translateY(${offset * 0.2}px) scale(2)`;
+    });
+
+</script>
+
+</body>
+</html>

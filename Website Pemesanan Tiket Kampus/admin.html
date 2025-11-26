@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+
+    <link rel="stylesheet" href="assets/css/global.css">
+
+    <style>
+        body {
+            margin: 0;
+            display: flex;
+            font-family: 'Poppins', sans-serif;
+            background: #f6f8fa;
+        }
+
+        /* SIDEBAR */
+        .sidebar {
+            width: 230px;
+            background: #1f2937;
+            height: 100vh;
+            padding: 20px;
+            position: fixed;
+            left: 0;
+            top: 0;
+            color: white;
+        }
+
+        .sidebar h2 {
+            margin-bottom: 25px;
+            text-align: center;
+        }
+
+        .menu a {
+            display: block;
+            padding: 12px;
+            margin: 6px 0;
+            text-decoration: none;
+            background: #374151;
+            color: white;
+            border-radius: 8px;
+        }
+
+        .menu a.active,
+        .menu a:hover {
+            background: royalblue;
+        }
+
+        /* CONTENT */
+        .content {
+            margin-left: 260px;
+            padding: 30px;
+            width: 100%;
+        }
+
+        .box {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+            margin-bottom: 25px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        table, td, th {
+            border: 1px solid #ddd;
+        }
+
+        td, th {
+            padding: 10px;
+        }
+
+        .btn-primary {
+            padding: 8px 12px;
+            background: royalblue;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .btn-danger {
+            padding: 8px 12px;
+            background: red;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+        <h2>Admin Panel</h2>
+
+        <div class="menu">
+            <a href="#" class="menu-link active" data-page="dashboard">Dashboard</a>
+            <a href="#" class="menu-link" data-page="acara">Kelola Acara</a>
+            <a href="#" class="menu-link" data-page="pemesan">Daftar Pemesan</a>
+            <a href="login.html" class="menu-link" style="margin-top:40px;background:#dc2626;">Logout</a>
+        </div>
+    </div>
+
+    <!-- CONTENT -->
+    <div class="content">
+
+        <!-- PAGE: DASHBOARD -->
+        <div id="dashboard" class="box page">
+            <h2>Dashboard Admin</h2>
+            <p>Selamat datang kembali, Admin!</p>
+
+            <div style="display:flex; gap:20px; margin-top:20px;">
+                <div class="box" style="flex:1; text-align:center;">
+                    <h3>Total Acara</h3>
+                    <p id="countAcara" style="font-size:24px;font-weight:bold;">6</p>
+                </div>
+
+                <div class="box" style="flex:1; text-align:center;">
+                    <h3>Total Pemesan</h3>
+                    <p id="countPesanan" style="font-size:24px;font-weight:bold;">23</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- PAGE: KELOLA ACARA -->
+        <div id="acara" class="box page" style="display:none;">
+            <h2>Kelola Acara</h2>
+
+            <table>
+                <tr>
+                    <th>Nama Acara</th>
+                    <th>Harga</th>
+                    <th>Aksi</th>
+                </tr>
+
+                <tr><td>Seminar Teknologi</td><td>20.000</td>
+                    <td><button class="btn-danger">Hapus</button></td></tr>
+
+                <tr><td>Workshop UI/UX</td><td>30.000</td>
+                    <td><button class="btn-danger">Hapus</button></td></tr>
+
+                <tr><td>Konser Musik Kampus</td><td>50.000</td>
+                    <td><button class="btn-danger">Hapus</button></td></tr>
+
+                <tr><td>Festival Budaya</td><td>15.000</td>
+                    <td><button class="btn-danger">Hapus</button></td></tr>
+
+                <tr><td>Turnamen E-Sport</td><td>35.000</td>
+                    <td><button class="btn-danger">Hapus</button></td></tr>
+
+                <tr><td>Seminar Karir</td><td>10.000</td>
+                    <td><button class="btn-danger">Hapus</button></td></tr>
+            </table>
+        </div>
+
+        <!-- PAGE: DAFTAR PEMESAN -->
+        <div id="pemesan" class="box page" style="display:none;">
+            <h2>Daftar Pemesan</h2>
+
+            <table>
+                <tr>
+                    <th>Nama</th>
+                    <th>Email</th>
+                    <th>Jumlah Tiket</th>
+                    <th>Acara</th>
+                </tr>
+
+                <tr><td>Hanif</td><td>hanif@example.com</td><td>2</td><td>Konser Musik</td></tr>
+                <tr><td>Alya</td><td>alya@gmail.com</td><td>1</td><td>Seminar Teknologi</td></tr>
+                <tr><td>Budi</td><td>budi@gmail.com</td><td>3</td><td>Workshop UI/UX</td></tr>
+            </table>
+        </div>
+
+    </div>
+
+    <script>
+        const links = document.querySelectorAll(".menu-link");
+        const pages = document.querySelectorAll(".page");
+
+        links.forEach(link => {
+            link.addEventListener("click", e => {
+                e.preventDefault();
+
+                if (!link.dataset.page) return;
+
+                pages.forEach(p => p.style.display = "none");
+                document.getElementById(link.dataset.page).style.display = "block";
+
+                links.forEach(l => l.classList.remove("active"));
+                link.classList.add("active");
+            });
+        });
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,60 @@
+/* ===== GLOBAL FONT ===== */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+* {
+    font-family: "Poppins", sans-serif;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* ========================= */
+/*       GLOBAL NAVBAR       */
+/* ========================= */
+
+body {
+    font-family: 'Poppins', sans-serif;
+    margin: 0;
+    padding: 0;
+    background: #f5f7fa;
+}
+
+/* NAVBAR */
+.navbar {
+    width: 100%;
+    background: #ffffff;
+    padding: 18px 40px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    position: sticky;
+    top: 0;
+    z-index: 999;
+}
+
+.navbar .logo {
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: #1a73e8;
+    letter-spacing: 1px;
+}
+
+.nav-links {
+    list-style: none;
+    display: flex;
+    gap: 28px;
+}
+
+.nav-links a {
+    text-decoration: none;
+    font-size: 1rem;
+    font-weight: 500;
+    color: #333;
+    transition: 0.2s ease-in-out;
+}
+
+.nav-links a:hover {
+    color: #1a73e8;
+    transform: translateY(-2px);
+}

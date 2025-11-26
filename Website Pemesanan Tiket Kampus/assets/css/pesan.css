@@ -1,0 +1,174 @@
+/* =============================== */
+/* PESAN TIKET - STYLING WAH       */
+/* =============================== */
+
+body {
+    font-family: 'Poppins', sans-serif;
+    background: linear-gradient(160deg, #e0f0ff, #f4f7fa);
+    color: #1f2937;
+}
+
+/* HEADER */
+.header {
+    background: linear-gradient(90deg, #1e3a8a, #3b82f6);
+    color: white;
+    padding: 2.5rem 1rem;
+    text-align: center;
+    position: relative;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+}
+
+.header h1 {
+    font-size: 2.4rem;
+    font-weight: 700;
+}
+
+.btn-back {
+    position: absolute;
+    top: 50%;
+    left: 2rem;
+    transform: translateY(-50%);
+    text-decoration: none;
+    color: #1e3a8a;
+    background-color: #fff;
+    padding: 0.6rem 1.2rem;
+    border-radius: 10px;
+    font-weight: 600;
+    transition: 0.3s;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.btn-back:hover {
+    background-color: #dbeafe;
+    transform: translateY(-2px);
+}
+
+/* PESAN CONTAINER */
+.pesan-container {
+    max-width: 600px;
+    margin: 3rem auto 5rem auto;
+    background: linear-gradient(145deg, #ffffff, #f0f6ff);
+    padding: 2.5rem 2rem;
+    border-radius: 20px;
+    box-shadow: 0 12px 30px rgba(0,0,0,0.12);
+    transition: all 0.3s ease-in-out;
+}
+
+.pesan-container:hover {
+    box-shadow: 0 16px 40px rgba(0,0,0,0.15);
+}
+
+.pesan-container h2 {
+    font-size: 2rem;
+    margin-bottom: 0.8rem;
+    color: #1e3a8a;
+    text-align: center;
+}
+
+.pesan-container p {
+    font-size: 1.1rem;
+    margin-bottom: 2rem;
+    text-align: center;
+    font-weight: 500;
+    color: #374151;
+}
+
+/* FORM INPUTS */
+form#formPesan {
+    display: flex;
+    flex-direction: column;
+}
+
+form#formPesan label {
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    margin-top: 1rem;
+    color: #1e293b;
+}
+
+form#formPesan input[type="text"],
+form#formPesan input[type="email"],
+form#formPesan input[type="number"] {
+    padding: 0.75rem 1.2rem;
+    border-radius: 12px;
+    border: 1px solid #cbd5e1;
+    font-size: 1rem;
+    transition: all 0.3s;
+    background: #f9fafb;
+}
+
+form#formPesan input:focus {
+    border-color: #3b82f6;
+    box-shadow: 0 0 12px rgba(59,130,246,0.35);
+    outline: none;
+    transform: scale(1.02);
+}
+
+/* BUTTON SUBMIT */
+form#formPesan button.btn-primary {
+    margin-top: 2.5rem;
+    padding: 0.9rem;
+    background: linear-gradient(90deg, #1e3a8a, #3b82f6);
+    color: #fff;
+    font-size: 1.15rem;
+    border: none;
+    border-radius: 14px;
+    cursor: pointer;
+    font-weight: 700;
+    transition: all 0.35s ease;
+    box-shadow: 0 6px 18px rgba(30,58,138,0.25);
+}
+
+form#formPesan button.btn-primary:hover {
+    background: linear-gradient(90deg, #3b82f6, #1e3a8a);
+    transform: translateY(-3px);
+    box-shadow: 0 10px 25px rgba(30,58,138,0.35);
+}
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+    .header h1 {
+        font-size: 2rem;
+    }
+
+    .btn-back {
+        left: 1rem;
+    }
+
+    .pesan-container {
+        margin: 2rem 1rem;
+        padding: 2rem 1.5rem;
+    }
+
+    form#formPesan input[type="text"],
+    form#formPesan input[type="email"],
+    form#formPesan input[type="number"] {
+        font-size: 0.95rem;
+    }
+
+    form#formPesan button.btn-primary {
+        font-size: 1rem;
+    }
+}
+
+/* =============================== */
+/* ANIMASI FADE IN + SLIDE UP      */
+/* =============================== */
+.fade-up {
+    opacity: 0;
+    transform: translateY(20px);
+    animation: fadeUpAnim 0.8s forwards;
+}
+
+/* Keyframe dasar */
+@keyframes fadeUpAnim {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Variasi delay untuk stagger */
+.fade-up.delay-1 { animation-delay: 0.2s; }
+.fade-up.delay-2 { animation-delay: 0.4s; }
+.fade-up.delay-3 { animation-delay: 0.6s; }

@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkout Pemesanan</title>
+    <link rel="stylesheet" href="assets/css/global.css">
+    <link rel="stylesheet" href="assets/css/checkout.css">
+</head>
+<body>
+
+    <!-- HEADER -->
+    <header class="header">
+        <h1>Checkout Pemesanan</h1>
+        <a href="acara.html" class="btn-back">Kembali ke Acara</a>
+    </header>
+
+    <!-- CONTAINER CHECKOUT -->
+    <div class="checkout-container">
+        <h2>Ringkasan Pesanan</h2>
+
+        <div id="detailCheckout">
+            <p><strong>Nama Acara:</strong> -</p>
+            <p><strong>Nama Pemesan:</strong> -</p>
+            <p><strong>Email:</strong> -</p>
+            <p><strong>Jumlah Tiket:</strong> -</p>
+            <p><strong>Harga per Tiket:</strong> -</p>
+            <p><strong>Total Pembayaran:</strong> -</p>
+        </div>
+
+        <button id="btnBayar" class="btn-primary">
+            Bayar Sekarang
+        </button>
+    </div>
+
+    <!-- MODAL LOADING -->
+    <div id="modalLoading" class="modal">
+        <div class="modal-content">
+            <div class="spinner"></div>
+            <p>Memproses Pembayaran...</p>
+        </div>
+    </div>
+
+    <!-- MODAL SUKSES -->
+    <div id="modalSukses" class="modal">
+        <div class="modal-content success-content">
+            <h3>Pembayaran Berhasil!</h3>
+            <p>Tiketmu siap diunduh 🎫</p>
+
+            <!-- Kartu tiket digital -->
+            <div class="tiket-card">
+                <h4 id="tiketAcara">-</h4>
+                <p id="tiketNama">-</p>
+                <p id="tiketEmail">-</p>
+                <p id="tiketJumlah">- Tiket</p>
+            </div>
+
+            <button id="btnLanjut" class="btn-primary">Lanjut ke Tiket</button>
+        </div>
+    </div>
+
+
+    <script>
+        // Ambil data dari URL
+        const params = new URLSearchParams(window.location.search);
+        const id = params.get("id");
+        const nama = params.get("nama");
+        const email = params.get("email");
+        const jumlah = parseInt(params.get("jumlah"));
+
+        const eventData = {
+            "seminar-teknologi": { title: "Seminar Teknologi", price: 20000 },
+            "workshop-uiux": { title: "Workshop UI/UX", price: 30000 },
+            "konser-musik": { title: "Konser Musik Kampus", price: 50000 },
+            "festival-budaya": { title: "Festival Budaya Nusantara", price: 15000 },
+            "turnamen-esport": { title: "Turnamen E-Sport Kampus", price: 35000 },
+            "seminar-karir": { title: "Seminar Karir & CV Building", price: 10000 }
+        };
+
+        if (!id || !eventData[id]) {
+            document.body.innerHTML = "<h1>ACARA TIDAK DITEMUKAN</h1>";
+        }
+
+        const eventTitle = eventData[id].title;
+        const price = eventData[id].price;
+        const total = price * jumlah;
+
+        // Isi ringkasan
+        const box = document.getElementById("detailCheckout");
+        box.innerHTML = `
+            <p><strong>Nama Acara:</strong> ${eventTitle}</p>
+            <p><strong>Nama Pemesan:</strong> ${nama}</p>
+            <p><strong>Email:</strong> ${email}</p>
+            <p><strong>Jumlah Tiket:</strong> ${jumlah}</p>
+            <p><strong>Harga per Tiket:</strong> Rp ${price.toLocaleString()}</p>
+            <p><strong>Total Pembayaran:</strong> Rp ${total.toLocaleString()}</p>
+        `;
+
+        const btnBayar = document.getElementById("btnBayar");
+        const modalLoading = document.getElementById("modalLoading");
+        const modalSukses = document.getElementById("modalSukses");
+        const btnLanjut = document.getElementById("btnLanjut");
+
+        btnBayar.addEventListener("click", () => {
+            modalLoading.style.display = "flex";
+            btnBayar.disabled = true;
+
+            setTimeout(() => {
+                modalLoading.style.display = "none";
+
+                // isi data tiket digital
+                document.getElementById("tiketAcara").textContent = eventTitle;
+                document.getElementById("tiketNama").textContent = nama;
+                document.getElementById("tiketEmail").textContent = email;
+                document.getElementById("tiketJumlah").textContent = jumlah + " Tiket";
+
+                modalSukses.style.display = "flex";
+            }, 2500);
+        });
+
+
+        btnLanjut.addEventListener("click", () => {
+            // redirect ke tiket.html
+            window.location.href = `tiket.html?id=${id}&nama=${encodeURIComponent(nama)}&email=${encodeURIComponent(email)}&jumlah=${jumlah}`;
+        });
+    </script>
+
+</body>
+</html>
