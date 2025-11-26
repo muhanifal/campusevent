@@ -9,9 +9,6 @@
 </head>
 <body>
 
-    <!-- ====================================== -->
-    <!-- =============== NAVBAR =============== -->
-    <!-- ====================================== -->
     <nav class="navbar">
         <div class="logo">CampusEvent</div>
         <ul class="nav-links">
@@ -21,39 +18,22 @@
         </ul>
     </nav>
 
-
-
-    <!-- ========================================================= -->
-    <!-- ========== B. HALAMAN DAFTAR ACARA (MAIN PAGE) ========== -->
-    <!-- ========================================================= -->
     <section class="event-page">
-
         <h1 class="page-title">Daftar Acara Kampus</h1>
 
-        <!-- ====================== -->
-        <!-- SEARCH BAR ACARA -->
-        <!-- ====================== -->
         <div class="search-container">
             <input type="text" id="searchEvent" placeholder="Cari acara..." class="search-input">
         </div>
 
-        <!-- ============================== -->
-        <!-- FILTER KATEGORI ACARA -->
-        <!-- ============================== -->
         <div class="filter-container">
-            <button class="filter-btn">Semua</button>
+            <button class="filter-btn active">Semua</button>
             <button class="filter-btn">Seminar</button>
             <button class="filter-btn">Workshop</button>
             <button class="filter-btn">Konser</button>
             <button class="filter-btn">Kompetisi</button>
         </div>
 
-
-        <!-- ====================== -->
-        <!-- LIST CARD ACARA -->
-        <!-- ====================== -->
         <div class="event-list">
-
             <!-- ===== CARD 1 ===== -->
             <div class="event-card" data-category="seminar">
                 <img src="img/card/seminarteknologi.png" alt="Poster Acara" class="event-img">
@@ -177,81 +157,42 @@
     </section>
 
     <script>
-        // ==============================
-        // FILTER ACARA FLEXIBLE
-        // ==============================
         const filterButtons = document.querySelectorAll('.filter-btn');
-        const eventCards = document.querySelectorAll('.event-card');
-
-        filterButtons.forEach(btn => {
-            btn.addEventListener('click', () => {
-                const selected = btn.textContent.toLowerCase();
-                
-                // Highlight tombol yang aktif
-                filterButtons.forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
-
-                eventCards.forEach(card => {
-                    const category = card.dataset.category.toLowerCase();
-
-                    if (selected === 'semua' || category.includes(selected)) {
-                        card.style.display = 'block';
-                    } else {
-                        card.style.display = 'none';
-                    }
-                });
-            });
-        });
-
-        // Ambil data acara dari localStorage
-        let events = JSON.parse(localStorage.getItem("events")) || [];
-
-        // Elemen container acara
-        const container = document.getElementById("daftarAcara");
-
-        // Kalau belum ada acara
-        if (events.length === 0) {
-            container.innerHTML = "<p class='no-event'>Belum ada acara yang tersedia.</p>";
-        }
-
-        // Generate kartu acara
-        events.forEach((ev, i) => {
-
-            const card = document.createElement("div");
-            card.classList.add("event-card");
-
-            card.innerHTML = `
-                <img src="${ev.image}" alt="${ev.name}" class="event-img">
-
-                <h3>${ev.name}</h3>
-                <p class="event-price">Rp ${ev.price.toLocaleString()}</p>
-
-                <a href="detail.html?id=${i}" class="btn-detail">Lihat Detail</a>
-            `;
-
-            container.appendChild(card);
-        });
-
-        //SEARCH BAR
         const searchInput = document.getElementById("searchEvent");
         const eventCards = document.querySelectorAll(".event-card");
 
-        searchInput.addEventListener("input", () => {
+        let currentFilter = 'semua';
+
+        function updateDisplay() {
             const query = searchInput.value.toLowerCase();
 
             eventCards.forEach(card => {
+                const category = card.dataset.category.toLowerCase();
                 const title = card.querySelector("h3").textContent.toLowerCase();
-                if (title.includes(query)) {
+
+                if ((currentFilter === 'semua' || category === currentFilter) && title.includes(query)) {
                     card.style.display = "block";
                 } else {
                     card.style.display = "none";
                 }
             });
+        }
+
+        filterButtons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                currentFilter = btn.textContent.toLowerCase();
+
+                filterButtons.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+
+                updateDisplay();
+            });
         });
 
+        searchInput.addEventListener("input", () => {
+            updateDisplay();
+        });
     </script>
-    <script src="assets/js/script.js"></script>
-    <script src="assets/js/acara.js"></script>
 
 </body>
 </html>
