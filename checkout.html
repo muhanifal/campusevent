@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkout Pemesanan</title>
+    <link rel="stylesheet" href="assets/css/global.css">
+    <link rel="stylesheet" href="assets/css/checkout.css">
+    <style>
+        /* Additional styles for better modals */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            text-align: center;
+            min-width: 320px;
+            max-width: 450px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+            animation: slideUp 0.5s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .modal-content::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+        }
+        
+        .success-content::before {
+            background: linear-gradient(90deg, #10b981, #059669);
+        }
+        
+        .modal-content p {
+            margin-top: 15px;
+            font-size: 1rem;
+            color: #1e293b;
+            line-height: 1.5;
+        }
+        
+        .success-content h3 {
+            color: #10b981;
+            font-size: 1.8rem;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+        
+        /* Spinner loading */
+        .spinner {
+            width: 60px;
+            height: 60px;
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #3b82f6;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        @keyframes slideUp {
+            from { 
+                opacity: 0;
+                transform: translateY(30px) scale(0.95);
+            }
+            to { 
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+        
+        /* Success animation */
+        .success-icon {
+            font-size: 50px;
+            color: #10b981;
+            margin-bottom: 15px;
+            animation: bounce 0.6s ease;
+        }
+        
+        @keyframes bounce {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+        
+        /* Close button */
+        .close-modal {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: none;
+            border: none;
+            font-size: 24px;
+            color: #94a3b8;
+            cursor: pointer;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: 0.3s;
+        }
+        
+        .close-modal:hover {
+            background: #f1f5f9;
+            color: #64748b;
+        }
+        
+        .ticket-id-display {
+            background: #f0f9ff;
+            padding: 10px;
+            border-radius: 8px;
+            margin: 15px 0;
+            font-family: monospace;
+            font-weight: bold;
+            color: #0369a1;
+            border: 1px dashed #3b82f6;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- HEADER -->
+    <header class="header">
+        <h1>Checkout Pemesanan</h1>
+        <a href="acara.html" class="btn-back">Kembali ke Acara</a>
+    </header>
+
+    <!-- CONTAINER CHECKOUT -->
+    <div class="checkout-container">
+        <h2>Ringkasan Pesanan</h2>
+
+        <div id="detailCheckout">
+            <p><strong>Nama Acara:</strong> -</p>
+            <p><strong>Nama Pemesan:</strong> -</p>
+            <p><strong>Email:</strong> -</p>
+            <p><strong>Jumlah Tiket:</strong> -</p>
+            <p><strong>Harga per Tiket:</strong> -</p>
+            <p><strong>Total Pembayaran:</strong> -</p>
+        </div>
+
+        <button id="btnBayar" class="btn-primary">
+            Bayar Sekarang
+        </button>
+    </div>
+
+    <!-- MODAL LOADING -->
+    <div id="modalLoading" class="modal">
+        <div class="modal-content">
+            <button class="close-modal" onclick="closeLoadingModal()">×</button>
+            <div class="spinner"></div>
+            <p style="font-weight: 600; margin-top: 20px; color: #1e3a8a;">Memproses Pembayaran...</p>
+            <p style="font-size: 14px; color: #64748b;">Harap tunggu sebentar</p>
+        </div>
+    </div>
+
+    <!-- MODAL SUKSES -->
+    <div id="modalSukses" class="modal">
+        <div class="modal-content success-content">
+            <button class="close-modal" onclick="closeSuccessModal()">×</button>
+            <div class="success-icon">✅</div>
+            <h3>Pembayaran Berhasil!</h3>
+            <p>Tiketmu sudah siap 🎫</p>
+            <p style="font-size: 14px; color: #64748b;">Silakan download tiket kamu</p>
+
+            <!-- Kartu tiket digital -->
+            <div class="tiket-card">
+                <h4 id="tiketAcara">-</h4>
+                <p id="tiketNama">-</p>
+                <p id="tiketEmail">-</p>
+                <p id="tiketJumlah">- Tiket</p>
+                <div class="ticket-id-display" id="ticketIdDisplay">
+                    ID: -
+                </div>
+            </div>
+
+            <button id="btnLanjut" class="btn-primary" style="margin-top: 25px; padding: 12px 30px; font-size: 16px;">
+                Lihat & Download Tiket
+            </button>
+        </div>
+    </div>
+
+
+    <script>
+        // Ambil data dari URL
+        const params = new URLSearchParams(window.location.search);
+        const id = params.get("id");
+        const nama = params.get("nama");
+        const email = params.get("email");
+        const jumlah = parseInt(params.get("jumlah"));
+
+        // Ambil data acara dari localStorage
+        const events = JSON.parse(localStorage.getItem("campusEvents")) || [];
+        const event = events.find(e => e.id === id);
+
+        if (!event) {
+            document.body.innerHTML = `
+                <div style="text-align:center;margin-top:50px;">
+                    <h1 style="color:#dc2626;">ACARA TIDAK DITEMUKAN</h1>
+                    <a href="acara.html" style="display:inline-block;margin-top:20px;padding:10px 20px;background:#3b82f6;color:white;border-radius:8px;text-decoration:none;">
+                        Kembali ke Acara
+                    </a>
+                </div>
+            `;
+            throw new Error("Acara tidak ditemukan");
+        }
+
+        const eventTitle = event.title;
+        const price = event.price;
+        const total = price * jumlah;
+
+        // Generate Ticket ID
+        function generateTicketId() {
+            const timestamp = Date.now().toString().slice(-8);
+            const random = Math.random().toString(36).substr(2, 4).toUpperCase();
+            return `TKT-${timestamp}-${random}`;
+        }
+
+        const ticketId = generateTicketId();
+
+        // Isi ringkasan
+        const box = document.getElementById("detailCheckout");
+        box.innerHTML = `
+            <div style="background:#f8fafc;padding:20px;border-radius:12px;margin-bottom:20px;">
+                <p><strong>Nama Acara:</strong> <span style="color:#1e3a8a;font-weight:600;">${eventTitle}</span></p>
+                <p><strong>Nama Pemesan:</strong> ${nama}</p>
+                <p><strong>Email:</strong> ${email}</p>
+                <p><strong>Jumlah Tiket:</strong> <span style="color:#059669;font-weight:600;">${jumlah}</span></p>
+                <p><strong>Harga per Tiket:</strong> Rp ${price.toLocaleString()}</p>
+                <p><strong>Total Pembayaran:</strong> <span style="color:#dc2626;font-weight:700;font-size:18px;">Rp ${total.toLocaleString()}</span></p>
+            </div>
+        `;
+
+        const btnBayar = document.getElementById("btnBayar");
+        const modalLoading = document.getElementById("modalLoading");
+        const modalSukses = document.getElementById("modalSukses");
+        const btnLanjut = document.getElementById("btnLanjut");
+
+        // Fungsi untuk close modal
+        function closeLoadingModal() {
+            modalLoading.style.display = "none";
+            btnBayar.disabled = false;
+        }
+        
+        function closeSuccessModal() {
+            modalSukses.style.display = "none";
+        }
+
+        btnBayar.addEventListener("click", () => {
+            modalLoading.style.display = "flex";
+            btnBayar.disabled = true;
+
+            setTimeout(() => {
+                modalLoading.style.display = "none";
+
+                // Kurangi jumlah tiket yang tersedia
+                event.tickets -= jumlah;
+                localStorage.setItem("campusEvents", JSON.stringify(events));
+
+                // Simpan data pemesanan ke localStorage dengan ID Tiket
+                const bookings = JSON.parse(localStorage.getItem("campusBookings")) || [];
+                const newBooking = {
+                    id: 'booking-' + Date.now(),
+                    eventId: id,
+                    name: nama,
+                    email: email,
+                    quantity: jumlah,
+                    total: total,
+                    date: new Date().toISOString(),
+                    ticketId: ticketId  // Menyimpan ID Tiket
+                };
+                bookings.push(newBooking);
+                localStorage.setItem("campusBookings", JSON.stringify(bookings));
+
+                // isi data tiket digital
+                document.getElementById("tiketAcara").textContent = eventTitle;
+                document.getElementById("tiketNama").textContent = nama;
+                document.getElementById("tiketEmail").textContent = email;
+                document.getElementById("tiketJumlah").textContent = jumlah + " Tiket";
+                document.getElementById("ticketIdDisplay").innerHTML = `<strong>ID Tiket:</strong> ${ticketId}`;
+
+                modalSukses.style.display = "flex";
+            }, 2500);
+        });
+
+        btnLanjut.addEventListener("click", () => {
+            // redirect ke tiket.html dengan parameter ticketId
+            window.location.href = `tiket.html?id=${id}&nama=${encodeURIComponent(nama)}&email=${encodeURIComponent(email)}&jumlah=${jumlah}&ticketId=${ticketId}`;
+        });
+        
+        // Close modal dengan ESC key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeLoadingModal();
+                closeSuccessModal();
+            }
+        });
+        
+        // Close modal dengan klik di luar
+        window.onclick = function(event) {
+            if (event.target === modalLoading) {
+                closeLoadingModal();
+            }
+            if (event.target === modalSukses) {
+                closeSuccessModal();
+            }
+        };
+    </script>
+
+</body>
+</html>

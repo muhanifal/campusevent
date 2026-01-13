@@ -1,0 +1,43 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test API</title>
+    <script src="assets/js/api.js"></script>
+</head>
+<body>
+    <h1>Test API Connection</h1>
+    <div id="result"></div>
+    
+    <script>
+        async function testAPI() {
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = '<p>Loading events...</p>';
+            
+            try {
+                const events = await CampusEventAPI.getEvents();
+                
+                if (events.length > 0) {
+                    let html = `<h3>Found ${events.length} events:</h3>`;
+                    events.forEach(event => {
+                        html += `
+                            <div style="border:1px solid #ccc; padding:10px; margin:10px;">
+                                <h4>${event.title}</h4>
+                                <p>Date: ${event.formatted_date}</p>
+                                <p>Price: ${event.price_formatted}</p>
+                            </div>
+                        `;
+                    });
+                    resultDiv.innerHTML = html;
+                } else {
+                    resultDiv.innerHTML = '<p>No events found</p>';
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<p style="color:red;">Error: ${error.message}</p>`;
+            }
+        }
+        
+        testAPI();
+    </script>
+</body>
+</html>
