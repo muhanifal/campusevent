@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detail Acara | Ticketing Kampus</title>
+    <link rel="stylesheet" href="assets/css/global.css">
+    <link rel="stylesheet" href="assets/css/detail.css">
+
+</head>
+<body>
+
+<!-- ========================== -->
+<!-- NAVBAR -->
+<!-- ========================== -->
+<header class="navbar">
+    <div class="nav-container">
+        <h2 class="nav-logo">Ticketing Kampus</h2>
+        <nav>
+            <a href="index.html">Beranda</a>
+            <a href="acara.html">Acara</a>
+        </nav>
+    </div>
+</header>
+
+<!-- ========================== -->
+<!-- DETAIL ACARA -->
+<!-- ========================== -->
+<section class="detail-container">
+
+    <div class="detail-content">
+
+        <img id="eventPoster" src="" alt="Poster Acara" class="detail-img">
+
+        <div class="detail-info">
+            <h1 id="eventTitle">Judul Acara</h1>
+
+            <p><strong>Tanggal:</strong> <span id="eventDate"></span></p>
+            <p><strong>Lokasi:</strong> <span id="eventLocation"></span></p>
+            <p><strong>Harga:</strong> <span id="eventPrice"></span></p>
+            <p><strong>Tiket Tersedia:</strong> <span id="eventTickets"></span></p>
+
+            <h3>Deskripsi Acara</h3>
+            <p id="eventDesc"></p>
+            <div id="ticketBadge" class="badge">Memuat...</div>
+            <div class="rating">⭐⭐⭐⭐☆ (4.0)</div>
+            <div id="countdown"></div>
+
+            <a id="pesanBtn" href="#" class="btn-primary">Pesan Tiket</a>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- ========================== -->
+<!-- SCRIPT DATA ACARA -->
+<!-- ========================== -->
+<script>
+    // Ambil ID dari URL
+    const params = new URLSearchParams(window.location.search);
+    const eventID = params.get("id");
+
+    // Ambil data dari localStorage
+    const events = JSON.parse(localStorage.getItem("campusEvents")) || [];
+    const event = events.find(e => e.id === eventID);
+
+    if (!event) {
+        document.body.innerHTML = "<h2 style='text-align:center; margin-top:50px;'>Acara tidak ditemukan.</h2>";
+    } else {
+        document.getElementById("eventPoster").src = event.poster || event.image;
+        document.getElementById("eventTitle").textContent = event.title;
+        document.getElementById("eventDate").textContent = event.formatted_date;
+        document.getElementById("eventLocation").textContent = event.location;
+        document.getElementById("eventPrice").textContent = event.price_formatted;
+        document.getElementById("eventTickets").textContent = event.tickets || 20;
+        document.getElementById("eventDesc").textContent = event.desc;
+
+        // Update badge tiket
+        const ticketBadge = document.getElementById("ticketBadge");
+        const ticketsAvailable = event.tickets || 20;
+        ticketBadge.textContent = `Tiket Tersisa: ${ticketsAvailable}`;
+        
+        if (ticketsAvailable > 10) {
+            ticketBadge.style.background = "#d4edda";
+            ticketBadge.style.color = "#155724";
+        } else if (ticketsAvailable > 5) {
+            ticketBadge.style.background = "#fff3cd";
+            ticketBadge.style.color = "#856404";
+        } else if (ticketsAvailable > 0) {
+            ticketBadge.style.background = "#f8d7da";
+            ticketBadge.style.color = "#721c24";
+        } else {
+            ticketBadge.textContent = "TIKET HABIS";
+            ticketBadge.style.background = "#dc3545";
+            ticketBadge.style.color = "white";
+        }
+
+        // Tombol pesan tiket
+        const pesanBtn = document.getElementById("pesanBtn");
+        if (ticketsAvailable > 0) {
+            pesanBtn.href = "pesan.html?id=" + eventID;
+            pesanBtn.textContent = "Pesan Tiket";
+        } else {
+            pesanBtn.href = "#";
+            pesanBtn.textContent = "Tiket Habis";
+            pesanBtn.style.backgroundColor = "#ccc";
+            pesanBtn.style.cursor = "not-allowed";
+            pesanBtn.onclick = (e) => e.preventDefault();
+        }
+
+        // COUNTDOWN
+        function countdown(dateString) {
+            const eventDate = new Date(dateString);
+            if (isNaN(eventDate.getTime())) {
+                // Jika format tanggal tidak valid, gunakan tanggal dari formatted_date
+                const dateParts = event.formatted_date.split(' ');
+                const monthMap = {
+                    'Januari': 0, 'Februari': 1, 'Maret': 2, 'April': 3,
+                    'Mei': 4, 'Juni': 5, 'Juli': 6, 'Agustus': 7,
+                    'September': 8, 'Oktober': 9, 'November': 10, 'Desember': 11
+                };
+                const day = parseInt(dateParts[0]);
+                const month = monthMap[dateParts[1]];
+                const year = parseInt(dateParts[2]);
+                eventDate.setFullYear(year, month, day);
+            }
+            
+            const eventTime = eventDate.getTime();
+            setInterval(() => {
+                const now = new Date().getTime();
+                const diff = eventTime - now;
+
+                if (diff <= 0) {
+                    document.getElementById("countdown").textContent = "Acara Sedang Berlangsung!";
+                    return;
+                }
+
+                const d = Math.floor(diff / (1000*60*60*24));
+                const h = Math.floor((diff % (1000*60*60*24)) / (1000*60*60));
+                const m = Math.floor((diff % (1000*60*60)) / (1000*60));
+
+                document.getElementById("countdown").textContent =
+                    `Dimulai dalam ${d} hari ${h} jam ${m} menit`;
+            }, 1000);
+        }
+
+        countdown(event.date);
+    }
+
+    // ==================================================
+    // PARALLAX EFFECT
+    window.addEventListener("scroll", () => {
+        const offset = window.pageYOffset;
+        const parallax = document.querySelector(".detail-container::before");
+        if (parallax) {
+            parallax.style.transform = `translateY(${offset * 0.2}px) scale(2)`;
+        }
+    });
+
+</script>
+
+</body>
+</html>

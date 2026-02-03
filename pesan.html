@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pesan Tiket - CampusEvent</title>
+    <link rel="stylesheet" href="assets/css/global.css">
+    <link rel="stylesheet" href="assets/css/pesan.css">
+</head>
+<body>
+
+    <!-- ====================== -->
+    <!-- HEADER -->
+    <!-- ====================== -->
+    <header class="header">
+        <h1>Pesan Tiket Acara</h1>
+        <a href="acara.html" class="btn-back">Kembali ke Acara</a>
+    </header>
+
+    <!-- ====================== -->
+    <!-- FORM PEMESANAN -->
+    <!-- ====================== -->
+    <div class="pesan-container">
+        <h2 id="eventTitle">Memuat...</h2>
+        <p id="eventPrice">Harga: -</p>
+        <p id="eventTickets">Tiket Tersedia: -</p>
+
+        <form id="formPesan">
+            <label for="nama">Nama Lengkap</label>
+            <input type="text" id="nama" placeholder="Masukkan nama lengkap" required>
+
+            <label for="email">Email</label>
+            <input type="email" id="email" placeholder="Masukkan email aktif" required>
+
+            <label for="jumlah">Jumlah Tiket (Maks: <span id="maxTickets">10</span>)</label>
+            <input type="number" id="jumlah" value="1" min="1" required>
+
+            <input type="hidden" id="eventId">
+
+            <button type="submit" class="btn-primary">Lanjut ke Checkout</button>
+        </form>
+    </div>
+
+    <!-- ====================== -->
+    <!-- SCRIPT DINAMIS -->
+    <!-- ====================== -->
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const eventId = urlParams.get("id");
+
+        // Ambil data acara dari localStorage
+        const events = JSON.parse(localStorage.getItem("campusEvents")) || [];
+        const event = events.find(e => e.id === eventId);
+
+        if (!event) {
+            document.body.innerHTML = "<h1 style='text-align:center;margin-top:50px;'>ACARA TIDAK DITEMUKAN</h1>";
+        } else {
+            const titleEl = document.getElementById("eventTitle");
+            const priceEl = document.getElementById("eventPrice");
+            const ticketsEl = document.getElementById("eventTickets");
+            const maxTicketsSpan = document.getElementById("maxTickets");
+            const jumlahInput = document.getElementById("jumlah");
+            const formEl = document.getElementById("formPesan");
+
+            const ticketsAvailable = event.tickets || 20;
+            
+            titleEl.textContent = event.title;
+            priceEl.textContent = "Harga: " + event.price_formatted;
+            ticketsEl.textContent = "Tiket Tersedia: " + ticketsAvailable;
+            maxTicketsSpan.textContent = ticketsAvailable;
+            jumlahInput.max = ticketsAvailable;
+            document.getElementById("eventId").value = eventId;
+
+            // Validasi jumlah tiket
+            jumlahInput.addEventListener("change", function() {
+                if (this.value > ticketsAvailable) {
+                    this.value = ticketsAvailable;
+                    alert(`Jumlah tiket tidak boleh melebihi ${ticketsAvailable}`);
+                }
+            });
+
+            // Tambahkan class animasi staggered
+            titleEl.classList.add("fade-up", "delay-1");
+            priceEl.classList.add("fade-up", "delay-2");
+            ticketsEl.classList.add("fade-up", "delay-3");
+            formEl.classList.add("fade-up", "delay-4");
+        }
+
+        document.getElementById("formPesan").addEventListener("submit", function(e){
+            e.preventDefault();
+            const nama = document.getElementById("nama").value;
+            const email = document.getElementById("email").value;
+            const jumlah = document.getElementById("jumlah").value;
+            const eventId = document.getElementById("eventId").value;
+
+            // Validasi jumlah tiket
+            const event = events.find(e => e.id === eventId);
+            if (event && event.tickets < jumlah) {
+                alert(`Maaf, hanya tersedia ${event.tickets} tiket.`);
+                return;
+            }
+
+            window.location.href =
+                `checkout.html?id=${eventId}&nama=${encodeURIComponent(nama)}&email=${encodeURIComponent(email)}&jumlah=${jumlah}`;
+        });
+
+    </script>
+
+</body>
+</html>

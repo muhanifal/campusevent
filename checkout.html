@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkout Pemesanan</title>
+    <link rel="stylesheet" href="assets/css/global.css">
+    <link rel="stylesheet" href="assets/css/checkout.css">
+</head>
+<body>
+
+    <!-- HEADER -->
+    <header class="header">
+        <h1>Checkout Pemesanan</h1>
+        <a href="acara.html" class="btn-back">Kembali ke Acara</a>
+    </header>
+
+    <!-- CONTAINER CHECKOUT -->
+    <div class="checkout-container">
+        <h2>Ringkasan Pesanan</h2>
+
+        <div id="detailCheckout">
+            <p><strong>Nama Acara:</strong> -</p>
+            <p><strong>Nama Pemesan:</strong> -</p>
+            <p><strong>Email:</strong> -</p>
+            <p><strong>Jumlah Tiket:</strong> -</p>
+            <p><strong>Harga per Tiket:</strong> -</p>
+            <p><strong>Total Pembayaran:</strong> -</p>
+        </div>
+
+        <!-- ========================== -->
+        <!-- METODE PEMBAYARAN -->
+        <!-- ========================== -->
+        <div class="payment-methods">
+            <h3>Pilih Metode Pembayaran</h3>
+            
+            <div class="payment-options">
+                <label class="payment-option">
+                    <input type="radio" name="paymentMethod" value="bank_transfer" checked>
+                    <div class="payment-content">
+                        <div class="payment-icon">🏦</div>
+                        <div class="payment-details">
+                            <strong>Transfer Bank</strong>
+                            <small>Transfer ke rekening BCA</small>
+                        </div>
+                    </div>
+                </label>
+                
+                <label class="payment-option">
+                    <input type="radio" name="paymentMethod" value="ewallet">
+                    <div class="payment-content">
+                        <div class="payment-icon">📱</div>
+                        <div class="payment-details">
+                            <strong>E-Wallet</strong>
+                            <small>GoPay / OVO / DANA</small>
+                        </div>
+                    </div>
+                </label>
+                
+                <label class="payment-option">
+                    <input type="radio" name="paymentMethod" value="qris">
+                    <div class="payment-content">
+                        <div class="payment-icon">📲</div>
+                        <div class="payment-details">
+                            <strong>QRIS</strong>
+                            <small>Scan QR Code</small>
+                        </div>
+                    </div>
+                </label>
+            </div>
+            
+            <div id="paymentDetails" class="payment-details-info">
+                <!-- BANK TRANSFER DETAILS -->
+                <div id="bankInfo" class="bank-info active">
+                    <p><strong>Bank:</strong> BCA (Bank Central Asia)</p>
+                    <p><strong>Nomor Rekening:</strong></p>
+                    <span id="bankDetails" class="bank-details">1240011531465</span>
+                    <p><strong>Atas Nama:</strong> CampusEvent</p>
+                    <p><strong>Total:</strong> Rp <span id="bankTotal">0</span></p>
+                    <p><small>Transfer tepat sesuai total di atas</small></p>
+                </div>
+                
+                <!-- E-WALLET DETAILS -->
+                <div id="ewalletInfo" class="ewallet-info">
+                    <p><strong>Nomor Telepon:</strong></p>
+                    <span id="ewalletDetails" class="ewallet-details">085693649674</span>
+                    <p><strong>Atas Nama:</strong> CampusEvent</p>
+                    <p><strong>Total:</strong> Rp <span id="ewalletTotal">0</span></p>
+                    <p><small>Kirim ke nomor di atas sesuai total</small></p>
+                </div>
+                
+                <!-- QRIS DETAILS -->
+                <div id="qrisInfo" class="qris-info">
+                    <p><strong>Scan QR Code berikut:</strong></p>
+                    <div class="qris-image-placeholder" id="qrisPlaceholder">
+                        <img src="img/qr.png" alt="QR Code">
+                    </div>
+                    <p><strong>Total:</strong> Rp <span id="qrisTotal">0</span></p>
+                    <p><small>Scan QR code dengan aplikasi e-wallet</small></p>
+                </div>
+            </div>
+        </div>
+
+        <button id="btnBayar" class="btn-primary">
+            Bayar Sekarang
+        </button>
+    </div>
+
+    <!-- MODAL LOADING -->
+    <div id="modalLoading" class="modal">
+        <div class="modal-content">
+            <button class="close-modal" onclick="closeLoadingModal()">×</button>
+            <div class="spinner"></div>
+            <p style="font-weight:600; margin-top:20px; color:#1e3a8a;">Memproses Pembayaran...</p>
+            <p style="font-size:14px; color:#64748b;">Harap tunggu sebentar</p>
+        </div>
+    </div>
+
+    <!-- MODAL SUKSES -->
+    <div id="modalSukses" class="modal">
+        <div class="modal-content success-content">
+            <button class="close-modal" onclick="closeSuccessModal()">×</button>
+            <div class="success-icon">✅</div>
+            <h3>Pembayaran Berhasil!</h3>
+            <p>Tiketmu sudah siap 🎫</p>
+            <p style="font-size:14px; color:#64748b;">Silakan download tiket kamu</p>
+
+            <!-- Kartu tiket digital -->
+            <div class="tiket-card">
+                <h4 id="tiketAcara">-</h4>
+                <p id="tiketNama">-</p>
+                <p id="tiketEmail">-</p>
+                <p id="tiketJumlah">- Tiket</p>
+                <div class="ticket-id-display" id="ticketIdDisplay">
+                    ID: -
+                </div>
+            </div>
+
+            <button id="btnLanjut" class="btn-primary">
+                Lihat & Download Tiket
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Ambil data dari URL
+        const params = new URLSearchParams(window.location.search);
+        const id = params.get("id");
+        const nama = params.get("nama");
+        const email = params.get("email");
+        const jumlah = parseInt(params.get("jumlah"));
+
+        // Ambil data acara dari localStorage
+        const events = JSON.parse(localStorage.getItem("campusEvents")) || [];
+        const event = events.find(e => e.id === id);
+
+        if (!event) {
+            document.body.innerHTML = `
+                <div style="text-align:center;margin-top:50px;">
+                    <h1 style="color:#dc2626;">ACARA TIDAK DITEMUKAN</h1>
+                    <a href="acara.html" style="display:inline-block;margin-top:20px;padding:10px 20px;background:#3b82f6;color:white;border-radius:8px;text-decoration:none;">
+                        Kembali ke Acara
+                    </a>
+                </div>
+            `;
+            throw new Error("Acara tidak ditemukan");
+        }
+
+        const eventTitle = event.title;
+        const price = event.price;
+        const total = price * jumlah;
+
+        // Generate Ticket ID
+        function generateTicketId() {
+            const timestamp = Date.now().toString().slice(-8);
+            const random = Math.random().toString(36).substr(2, 4).toUpperCase();
+            return `TKT-${timestamp}-${random}`;
+        }
+
+        const ticketId = generateTicketId();
+
+        // Isi ringkasan
+        const box = document.getElementById("detailCheckout");
+        box.innerHTML = `
+            <div style="background:#f8fafc;padding:20px;border-radius:12px;margin-bottom:20px;">
+                <p><strong>Nama Acara:</strong> <span style="color:#1e3a8a;font-weight:600;">${eventTitle}</span></p>
+                <p><strong>Nama Pemesan:</strong> ${nama}</p>
+                <p><strong>Email:</strong> ${email}</p>
+                <p><strong>Jumlah Tiket:</strong> <span style="color:#059669;font-weight:600;">${jumlah}</span></p>
+                <p><strong>Harga per Tiket:</strong> Rp ${price.toLocaleString()}</p>
+                <p><strong>Total Pembayaran:</strong> <span style="color:#dc2626;font-weight:700;font-size:18px;">Rp ${total.toLocaleString()}</span></p>
+            </div>
+        `;
+
+        const btnBayar = document.getElementById("btnBayar");
+        const modalLoading = document.getElementById("modalLoading");
+        const modalSukses = document.getElementById("modalSukses");
+        const btnLanjut = document.getElementById("btnLanjut");
+
+        // Fungsi untuk close modal
+        function closeLoadingModal() {
+            modalLoading.style.display = "none";
+            btnBayar.disabled = false;
+        }
+        
+        function closeSuccessModal() {
+            modalSukses.style.display = "none";
+        }
+
+        // Update payment total di semua metode
+        document.getElementById('bankTotal').textContent = total.toLocaleString();
+        document.getElementById('ewalletTotal').textContent = total.toLocaleString();
+        document.getElementById('qrisTotal').textContent = total.toLocaleString();
+
+        // Handle payment method change
+        const paymentOptions = document.querySelectorAll('input[name="paymentMethod"]');
+        const paymentDetails = document.getElementById("paymentDetails");
+        const bankInfo = document.getElementById("bankInfo");
+        const ewalletInfo = document.getElementById("ewalletInfo");
+        const qrisInfo = document.getElementById("qrisInfo");
+
+        function showPaymentDetails(method) {
+            // Sembunyikan semua info dulu
+            bankInfo.classList.remove('active');
+            ewalletInfo.classList.remove('active');
+            qrisInfo.classList.remove('active');
+            
+            // Tampilkan info yang sesuai
+            if (method === 'bank_transfer') {
+                bankInfo.classList.add('active');
+                paymentDetails.classList.add('active');
+            } else if (method === 'ewallet') {
+                ewalletInfo.classList.add('active');
+                paymentDetails.classList.add('active');
+            } else if (method === 'qris') {
+                qrisInfo.classList.add('active');
+                paymentDetails.classList.add('active');
+            }
+        }
+
+        // Event listener untuk radio buttons
+        paymentOptions.forEach(option => {
+            option.addEventListener('change', function() {
+                showPaymentDetails(this.value);
+            });
+        });
+
+        // Default show bank transfer details
+        showPaymentDetails('bank_transfer');
+
+        // Update tombol Bayar
+        btnBayar.addEventListener("click", () => {
+            const selectedMethod = document.querySelector('input[name="paymentMethod"]:checked').value;
+            const methodNames = {
+                'bank_transfer': 'Transfer Bank',
+                'ewallet': 'E-Wallet',
+                'qris': 'QRIS'
+            };
+            
+            // Validasi: pastikan user sudah melihat detail pembayaran
+            if (!paymentDetails.classList.contains('active')) {
+                alert('Silakan pilih metode pembayaran terlebih dahulu');
+                return;
+            }
+            
+            // Simpan metode pembayaran ke data booking
+            const selectedMethodName = methodNames[selectedMethod];
+            
+            modalLoading.style.display = "flex";
+            btnBayar.disabled = true;
+
+            setTimeout(() => {
+                modalLoading.style.display = "none";
+
+                // Kurangi jumlah tiket yang tersedia
+                event.tickets -= jumlah;
+                localStorage.setItem("campusEvents", JSON.stringify(events));
+
+                // Simpan data pemesanan ke localStorage dengan ID Tiket dan metode pembayaran
+                const bookings = JSON.parse(localStorage.getItem("campusBookings")) || [];
+                const newBooking = {
+                    id: 'booking-' + Date.now(),
+                    eventId: id,
+                    name: nama,
+                    email: email,
+                    quantity: jumlah,
+                    total: total,
+                    date: new Date().toISOString(),
+                    ticketId: ticketId,
+                    paymentMethod: selectedMethod,
+                    paymentMethodName: selectedMethodName,
+                    // Simpan detail pembayaran
+                    paymentDetails: {
+                        bankAccount: selectedMethod === 'bank_transfer' ? '1240011531465' : null,
+                        phoneNumber: selectedMethod === 'ewallet' ? '085693649674' : null,
+                        qrisImage: selectedMethod === 'qris' ? 'img/qris-campusevent.png' : null
+                    }
+                };
+                bookings.push(newBooking);
+                localStorage.setItem("campusBookings", JSON.stringify(bookings));
+
+                // isi data tiket digital
+                document.getElementById("tiketAcara").textContent = eventTitle;
+                document.getElementById("tiketNama").textContent = nama;
+                document.getElementById("tiketEmail").textContent = email;
+                document.getElementById("tiketJumlah").textContent = jumlah + " Tiket";
+                document.getElementById("ticketIdDisplay").innerHTML = `
+                    <strong>ID Tiket:</strong> ${ticketId}<br>
+                    <small>Metode: ${selectedMethodName}</small><br>
+                    ${selectedMethod === 'bank_transfer' ? '<small>Rek: 1240011531465</small>' : ''}
+                    ${selectedMethod === 'ewallet' ? '<small>Telp: 085693649674</small>' : ''}
+                `;
+
+                modalSukses.style.display = "flex";
+            }, 2500);
+        });
+
+        btnLanjut.addEventListener("click", () => {
+            const selectedMethod = document.querySelector('input[name="paymentMethod"]:checked').value;
+            // redirect ke tiket.html dengan parameter ticketId
+            window.location.href = `tiket.html?id=${id}&nama=${encodeURIComponent(nama)}&email=${encodeURIComponent(email)}&jumlah=${jumlah}&ticketId=${ticketId}&paymentMethod=${selectedMethod}`;
+        });
+        
+        // Close modal dengan ESC key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeLoadingModal();
+                closeSuccessModal();
+            }
+        });
+        
+        // Close modal dengan klik di luar
+        window.onclick = function(event) {
+            if (event.target === modalLoading) {
+                closeLoadingModal();
+            }
+            if (event.target === modalSukses) {
+                closeSuccessModal();
+            }
+        };
+    </script>
+</body>
+</html>

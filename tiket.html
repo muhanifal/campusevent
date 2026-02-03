@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tiket Acara</title>
+    <link rel="stylesheet" href="assets/css/global.css">
+    <link rel="stylesheet" href="assets/css/tiket.css">
+</head>
+<body>
+
+    <!-- ====================== -->
+    <!-- HEADER -->
+    <!-- ====================== -->
+    <header class="header">
+        <h1>E-Tiket Acara</h1>
+        <a href="index.html" class="btn-back">Kembali ke Beranda</a>
+    </header>
+
+    <!-- ====================== -->
+    <!-- TIKET CONTAINER -->
+    <!-- ====================== -->
+    <div class="ticket-container">
+
+        <h2>Tiket Kamu</h2>
+
+        <div class="ticket-box">
+            <!-- Loading State -->
+            <div id="loading" class="loading">
+                <div class="loading-spinner"></div>
+                <p>Sedang membuat tiket dan QR code...</p>
+                <small>Harap tunggu sebentar</small>
+            </div>
+            
+            <!-- Ticket Content -->
+            <div id="ticketContent" class="ticket-content">
+                <!-- Ticket akan diisi oleh JavaScript -->
+            </div>
+        </div>
+
+        <div class="button-group">
+            <button onclick="window.print()" class="btn-primary">Cetak Tiket</button>
+            <button onclick="downloadTicket()" class="btn-success">Download Tiket</button>
+            <button onclick="downloadQRCode()" class="btn-primary" style="background: linear-gradient(135deg, #8b5cf6, #6366f1);">Download QR Code</button>
+        </div>
+
+    </div>
+
+    <!-- ====================== -->
+    <!-- SCRIPT DINAMIS -->
+    <!-- ====================== -->
+    <script>
+        // Ambil parameter URL
+        const p = new URLSearchParams(window.location.search);
+        const id = p.get("id");
+        const nama = p.get("nama");
+        const email = p.get("email");
+        const jumlah = parseInt(p.get("jumlah"));
+        const ticketId = p.get("ticketId");
+
+        // Ambil data acara dari localStorage
+        const events = JSON.parse(localStorage.getItem("campusEvents")) || [];
+        const event = events.find(e => e.id === id);
+
+        // Validasi
+        if (!id || !event) {
+            document.getElementById("loading").innerHTML = `
+                <div style="text-align: center; padding: 40px; color: #dc2626;">
+                    <h3 style="color: #dc2626;">❌ Acara Tidak Ditemukan</h3>
+                    <p>Data acara tidak ditemukan. Silakan kembali ke halaman acara.</p>
+                    <a href="acara.html" class="btn-primary" style="margin-top: 20px; display: inline-block;">Lihat Acara Lainnya</a>
+                </div>
+            `;
+            throw new Error("Acara tidak ditemukan");
+        }
+
+        const eventTitle = event.title;
+        const eventDate = event.formatted_date;
+        const eventLocation = event.location;
+        const eventPrice = event.price_formatted;
+        
+        // Gunakan ticketId dari parameter jika ada, jika tidak generate baru
+        const bookingId = ticketId || ('TKT-' + Date.now().toString().slice(-8) + '-' + Math.random().toString(36).substr(2, 4).toUpperCase());
+
+        // Variabel global untuk menyimpan QR code data URL
+        let qrCodeDataUrl = '';
+
+        // Fungsi untuk membuat QR Code sederhana tanpa library
+        function createQRCode() {
+            return new Promise((resolve) => {
+                // Buat canvas untuk QR Code
+                const canvas = document.createElement('canvas');
+                const size = 180;
+                canvas.width = size;
+                canvas.height = size;
+                const ctx = canvas.getContext('2d');
+                
+                // Data unik untuk QR code
+                const qrData = {
+                    ticketId: bookingId,
+                    event: eventTitle,
+                    name: nama,
+                    tickets: jumlah,
+                    date: eventDate,
+                    timestamp: Date.now(),
+                    hash: Math.random().toString(36).substr(2, 9)
+                };
+                
+                const dataString = JSON.stringify(qrData);
+                
+                // Background putih
+                ctx.fillStyle = '#FFFFFF';
+                ctx.fillRect(0, 0, size, size);
+                
+                // Generate pattern QR code
+                const moduleSize = 6;
+                const modules = Math.floor(size / moduleSize);
+                
+                // Seed berdasarkan data
+                const seed = dataString.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+                
+                // Gambar pattern QR
+                for (let y = 0; y < modules; y++) {
+                    for (let x = 0; x < modules; x++) {
+                        // Pattern berdasarkan data dan posisi
+                        const hashValue = (x * 17 + y * 23 + seed) % 256;
+                        const bitValue = hashValue > 128; // True untuk pixel hitam
+                        
+                        // Finder patterns (di sudut-sudut)
+                        const isFinderPattern = 
+                            (x < 4 && y < 4) || 
+                            (x > modules - 5 && y < 4) || 
+                            (x < 4 && y > modules - 5);
+                        
+                        // Timing patterns (garis tengah)
+                        const isTimingPattern = x === Math.floor(modules/2) || y === Math.floor(modules/2);
+                        
+                        // Alignment patterns (beberapa titik)
+                        const isAlignmentPattern = 
+                            (x === Math.floor(modules/3) && y === Math.floor(modules/3)) ||
+                            (x === Math.floor(modules*2/3) && y === Math.floor(modules/3)) ||
+                            (x === Math.floor(modules/3) && y === Math.floor(modules*2/3));
+                        
+                        // Tentukan apakah pixel hitam atau putih
+                        const isBlack = bitValue || isFinderPattern || isTimingPattern || isAlignmentPattern;
+                        
+                        ctx.fillStyle = isBlack ? '#000000' : '#FFFFFF';
+                        ctx.fillRect(x * moduleSize, y * moduleSize, moduleSize, moduleSize);
+                    }
+                }
+                
+                // Tambahkan logo di tengah
+                addLogoToQR(ctx, size);
+                
+                // Dapatkan data URL
+                qrCodeDataUrl = canvas.toDataURL('image/png');
+                resolve(qrCodeDataUrl);
+            });
+        }
+
+        // Fungsi untuk menambahkan logo di tengah QR code
+        function addLogoToQR(ctx, size) {
+            const center = size / 2;
+            const logoSize = 30;
+            
+            // Background bulat untuk logo
+            ctx.fillStyle = '#1e3a8a';
+            ctx.beginPath();
+            ctx.arc(center, center, logoSize/2 + 3, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Logo text
+            ctx.fillStyle = '#FFFFFF';
+            ctx.font = 'bold 16px Arial';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('CE', center, center);
+            
+            // Border putih di sekitar logo
+            ctx.strokeStyle = '#FFFFFF';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.arc(center, center, logoSize/2 + 1, 0, Math.PI * 2);
+            ctx.stroke();
+        }
+
+        // Fungsi untuk menampilkan tiket
+        async function displayTicket() {
+            try {
+                // Buat QR Code
+                const qrImg = await createQRCode();
+                
+                // Masukkan data ke tiket
+                const ticketContent = document.getElementById("ticketContent");
+                ticketContent.innerHTML = `
+                    <div class="ticket-header">
+                        <h3 style="margin: 0; font-size: 20px;">CampusEvent</h3>
+                        <p style="margin: 5px 0 0 0; opacity: 0.9;">E-Tiket Digital</p>
+                    </div>
+                    
+                    <div class="ticket-body">
+                        <h3 class="event-title">${eventTitle}</h3>
+                        
+                        <div class="info-section">
+                            <div class="info-row">
+                                <span class="label">ID Tiket:</span>
+                                <span class="value" style="color: #dc2626; font-weight: bold;">
+                                    <div class="ticket-id-badge">${bookingId}</div>
+                                </span>
+                            </div>
+                            <div class="info-row">
+                                <span class="label">Tanggal:</span>
+                                <span class="value">${eventDate}</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="label">Lokasi:</span>
+                                <span class="value">${eventLocation}</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="label">Harga:</span>
+                                <span class="value">${eventPrice}</span>
+                            </div>
+                        </div>
+                        
+                        <div class="info-section">
+                            <div style="font-weight: bold; color: #1e3a8a; margin-bottom: 10px;">Detail Pemesan</div>
+                            <div class="info-row">
+                                <span class="label">Nama:</span>
+                                <span class="value">${nama}</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="label">Email:</span>
+                                <span class="value">${email}</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="label">Jumlah Tiket:</span>
+                                <span class="value" style="color: #059669; font-weight: bold;">${jumlah} tiket</span>
+                            </div>
+                        </div>
+                        
+                        <div class="qr-section">
+                            <div style="font-weight: bold; color: #1e3a8a; margin-bottom: 15px; font-size: 16px;">
+                                QR Code Check-in
+                            </div>
+                            <div id="qrCodeContainer">
+                                <img src="${qrImg}" alt="QR Code" class="qr-code-img">
+                            </div>
+                            <p style="font-size: 13px; color: #475569; margin-top: 10px;">
+                                Scan QR code ini saat masuk venue
+                            </p>
+                            <p style="font-size: 11px; color: #94a3b8; margin-top: 5px; font-family: monospace;">
+                                ID: ${bookingId}
+                            </p>
+                        </div>
+                        
+                        <div class="ticket-footer">
+                            <p style="margin: 0 0 10px 0; font-weight: 600; color: #1e3a8a;">
+                                🎫 Instruksi Penting
+                            </p>
+                            <p style="margin: 0; font-size: 13px; color: #475569;">
+                                • Tunjukkan QR code saat masuk venue<br>
+                                • Tiket ini valid untuk ${jumlah} orang<br>
+                                • Bawa bukti identitas yang sesuai<br>
+                                • Datang 30 menit sebelum acara dimulai
+                            </p>
+                            <div class="ticket-id">${bookingId}</div>
+                        </div>
+                    </div>
+                `;
+                
+                // Sembunyikan loading, tampilkan tiket
+                document.getElementById("loading").style.display = "none";
+                ticketContent.style.display = "block";
+                
+                // Tambahkan animasi
+                setTimeout(() => {
+                    ticketContent.style.opacity = "1";
+                    ticketContent.style.transform = "translateY(0)";
+                }, 100);
+                
+                console.log("Ticket displayed successfully");
+                
+            } catch (error) {
+                console.error('Error displaying ticket:', error);
+                document.getElementById("loading").innerHTML = `
+                    <div style="text-align: center; padding: 40px;">
+                        <h3 style="color: #1e3a8a;">🎫 Tiket Acara</h3>
+                        <p><strong>ID Tiket:</strong> <span class="ticket-id-badge">${bookingId}</span></p>
+                        <p><strong>Acara:</strong> ${eventTitle}</p>
+                        <p><strong>Pemesan:</strong> ${nama}</p>
+                        <p><strong>Email:</strong> ${email}</p>
+                        <p><strong>Jumlah Tiket:</strong> ${jumlah}</p>
+                        <p><strong>Tanggal:</strong> ${eventDate}</p>
+                        <p><strong>Lokasi:</strong> ${eventLocation}</p>
+                        <div style="margin: 20px 0; padding: 20px; background: #f0f9ff; border-radius: 10px;">
+                            <p style="color: #dc2626;">⚠️ QR Code tidak dapat ditampilkan</p>
+                            <p>Silakan gunakan ID tiket <strong>${bookingId}</strong> untuk check-in</p>
+                        </div>
+                        <button onclick="location.reload()" class="btn-primary" style="margin-top: 20px;">Coba Lagi</button>
+                    </div>
+                `;
+            }
+        }
+
+        // Fungsi untuk download tiket
+        function downloadTicket() {
+            const ticketContent = `
+╔═══════════════════════════════════════════╗
+║           TIKET ACARA - CAMPUSEVENT       ║
+╚═══════════════════════════════════════════╝
+
+📋 INFORMASI TIKET
+├─ ID Tiket    : ${bookingId}
+├─ Acara       : ${eventTitle}
+├─ Tanggal     : ${eventDate}
+├─ Lokasi      : ${eventLocation}
+├─ Harga       : ${eventPrice}
+
+👤 DETAIL PEMESAN
+├─ Nama        : ${nama}
+├─ Email       : ${email}
+├─ Jumlah      : ${jumlah} tiket
+
+📝 CATATAN PENTING
+├─ Tiket ini valid untuk ${jumlah} orang
+├─ QR code diperlukan untuk check-in
+├─ Bawa bukti ini saat datang ke venue
+├─ Tiket ini unik dan tidak dapat digandakan
+└─ QR code akan berbeda untuk setiap transaksi
+
+════════════════════════════════════════════
+© ${new Date().getFullYear()} CampusEvent. All rights reserved.
+            `;
+            
+            const blob = new Blob([ticketContent], { type: 'text/plain;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `tiket-${bookingId}.txt`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            // Show success message
+            const originalText = event.target.innerHTML;
+            event.target.innerHTML = '✅ Berhasil Download!';
+            event.target.style.background = 'linear-gradient(135deg, #10b981, #059669)';
+            setTimeout(() => {
+                event.target.innerHTML = originalText;
+                event.target.style.background = '';
+            }, 2000);
+        }
+
+        // Fungsi untuk download QR code
+        function downloadQRCode() {
+            if (!qrCodeDataUrl) {
+                alert('QR Code belum siap. Silakan tunggu sebentar.');
+                return;
+            }
+            
+            const a = document.createElement('a');
+            a.href = qrCodeDataUrl;
+            a.download = `qr-code-${bookingId}.png`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            
+            // Show success message
+            const originalText = event.target.innerHTML;
+            event.target.innerHTML = '✅ QR Code Terdownload!';
+            event.target.style.background = 'linear-gradient(135deg, #8b5cf6, #7c3aed)';
+            setTimeout(() => {
+                event.target.innerHTML = originalText;
+                event.target.style.background = '';
+            }, 2000);
+        }
+        
+        // Load ticket when page is ready
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log("DOM loaded, starting ticket creation...");
+            displayTicket().then(() => {
+                console.log("Ticket creation completed");
+                // Auto-scroll to ticket after it's loaded
+                setTimeout(() => {
+                    window.scrollTo({
+                        top: document.querySelector('.ticket-container').offsetTop - 20,
+                        behavior: 'smooth'
+                    });
+                }, 500);
+            }).catch(error => {
+                console.error("Failed to create ticket:", error);
+            });
+        });
+        
+        // Cegah konteks menu pada QR code
+        document.addEventListener('contextmenu', function(e) {
+            if (e.target.tagName === 'IMG' && e.target.alt === 'QR Code') {
+                e.preventDefault();
+                alert('Gunakan tombol "Download QR Code" untuk menyimpan QR Code.');
+            }
+        });
+        
+        // Print styling
+        window.addEventListener('beforeprint', function() {
+            document.querySelector('.button-group').style.display = 'none';
+            document.querySelector('.btn-back').style.display = 'none';
+            document.querySelector('.qr-section').style.border = '2px solid #000';
+        });
+        
+        window.addEventListener('afterprint', function() {
+            document.querySelector('.button-group').style.display = '';
+            document.querySelector('.btn-back').style.display = '';
+            document.querySelector('.qr-section').style.border = '2px dashed #3b82f6';
+        });
+    </script>
+
+</body>
+</html>

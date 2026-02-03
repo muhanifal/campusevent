@@ -1,0 +1,178 @@
+/* ================================
+   INDEX PAGE STYLING POLISHED
+================================ */
+
+/* ===== NAVBAR ===== */
+.navbar {
+    width: 100%;
+    padding: 16px 40px;
+    background: #1e3a8a; /* biru royal */
+    box-shadow: 0 6px 15px rgba(0,0,0,0.15);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+.navbar .logo {
+    font-size: 24px;
+    font-weight: 700;
+    color: #fbbf24; /* emas */
+    letter-spacing: 1px;
+}
+
+/* NAV LINKS */
+.nav-links {
+    list-style: none;
+    display: flex;
+    gap: 25px;
+}
+
+.nav-links li a {
+    text-decoration: none;
+    font-size: 15px;
+    color: #fff;
+    font-weight: 500;
+    padding-bottom: 4px;
+    transition: all 0.3s ease;
+}
+
+.nav-links li a:hover {
+    color: #fbbf24;
+    border-bottom: 2px solid #fbbf24;
+}
+
+.nav-links li a.active {
+    border-bottom: 2px solid #fbbf24;
+}
+
+/* ===== LANDING SECTION ===== */
+.landing {
+    width: 100%;
+    min-height: 100vh;
+    background: linear-gradient(135deg, #1e3a8a, #2563eb);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    text-align: center;
+    padding: 0 25px;
+    position: relative;
+    overflow: hidden;
+}
+
+.landing-content h1 {
+    font-size: 3rem;
+    font-weight: 700;
+    margin-bottom: 16px;
+    animation: fadeInDown 1s ease forwards;
+}
+
+.landing-content p {
+    font-size: 1.2rem;
+    margin-bottom: 30px;
+    opacity: 0.95;
+    animation: fadeInUp 1s ease forwards 0.3s;
+}
+
+.btn-primary {
+    background: #fbbf24;
+    color: #1e3a8a;
+    padding: 14px 32px;
+    border-radius: 12px;
+    font-size: 15px;
+    font-weight: 600;
+    text-decoration: none;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+    transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+    transform: scale(1.05);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.25);
+}
+
+/* ===== FITUR SECTION ===== */
+.features {
+    padding: 80px 20px;
+    text-align: center;
+    margin-top: 100px;
+    background-color: #f5f7fa;
+}
+
+.features h2 {
+    font-size: 2.2rem;
+    font-weight: 700;
+    margin-bottom: 50px;
+    color: #1e3a8a;
+}
+
+.feature-container {
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+    flex-wrap: wrap;
+}
+
+.feature-box {
+    background: #fff;
+    width: 270px;
+    padding: 25px;
+    border-radius: 16px;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    cursor: default;
+}
+
+.feature-box:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 12px 30px rgba(0,0,0,0.15);
+}
+
+.feature-box h3 {
+    font-size: 1.2rem;
+    font-weight: 600;
+    margin-bottom: 12px;
+    color: #1e3a8a;
+}
+
+.feature-box p {
+    font-size: 0.95rem;
+    color: #555;
+    line-height: 1.5;
+}
+
+/* ===== ANIMASI ===== */
+@keyframes fadeInDown {
+    0% { opacity: 0; transform: translateY(-30px);}
+    100% { opacity: 1; transform: translateY(0);}
+}
+
+@keyframes fadeInUp {
+    0% { opacity: 0; transform: translateY(30px);}
+    100% { opacity: 1; transform: translateY(0);}
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 768px) {
+    .feature-container {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .landing-content h1 {
+        font-size: 2rem;
+    }
+
+    .landing-content p {
+        font-size: 1rem;
+    }
+
+    .btn-primary {
+        width: 100%;
+        text-align: center;
+    }
+}

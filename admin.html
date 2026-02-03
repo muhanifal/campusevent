@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <link rel="stylesheet" href="assets/css/global.css">
+    <link rel="stylesheet" href="assets/css/admin.css">
+</head>
+
+<body>
+
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+        <h2>Admin Panel</h2>
+
+        <div class="menu">
+            <a href="#" class="menu-link active" data-page="dashboard">Dashboard</a>
+            <a href="#" class="menu-link" data-page="acara">Kelola Acara</a>
+            <a href="#" class="menu-link" data-page="pemesan">Daftar Pemesan</a>
+            <a href="#" class="menu-link" data-page="tambah-acara">Tambah Acara</a>
+            <a href="#" class="menu-link logout-btn" id="logoutBtn">Logout</a>
+        </div>
+    </div>
+
+    <!-- CONTENT -->
+    <div class="content">
+
+        <!-- PAGE: DASHBOARD -->
+        <div id="dashboard" class="box page">
+            <h2>Dashboard Admin</h2>
+            <p>Selamat datang kembali, Admin!</p>
+
+            <div style="display:flex; gap:20px; margin-top:20px; flex-wrap: wrap;">
+                <div class="stats-card">
+                    <h3>Total Acara</h3>
+                    <div class="value" id="countAcara">0</div>
+                    <div class="sub-value">Acara aktif</div>
+                </div>
+
+                <div class="stats-card">
+                    <h3>Total Pemesan</h3>
+                    <div class="value" id="countPesanan">0</div>
+                    <div class="sub-value">Transaksi</div>
+                </div>
+
+                <div class="stats-card">
+                    <h3>Total Pendapatan</h3>
+                    <div class="value" id="totalPendapatan">Rp 0</div>
+                    <div class="sub-value">Pendapatan bersih</div>
+                </div>
+            </div>
+
+            <div class="box" style="margin-top:20px;">
+                <h3>Acara dengan Tiket Tersisa Sedikit</h3>
+                <div id="lowTicketEvents"></div>
+            </div>
+            
+            <div class="box" style="margin-top:20px;">
+                <h3>Transaksi Terbaru</h3>
+                <div id="recentBookings"></div>
+            </div>
+        </div>
+
+        <!-- PAGE: KELOLA ACARA -->
+        <div id="acara" class="box page" style="display:none;">
+            <h2>Kelola Acara</h2>
+            <button class="btn-success" onclick="showAddEventModal()">+ Tambah Acara Baru</button>
+
+            <div style="overflow-x: auto;">
+                <table id="eventsTable">
+                    <thead>
+                        <tr>
+                            <th>No</th>
+                            <th>Nama Acara</th>
+                            <th>Tanggal</th>
+                            <th>Harga</th>
+                            <th>Tiket Tersisa</th>
+                            <th>Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Data akan diisi oleh JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- PAGE: TAMBAH/EDIT ACARA -->
+        <div id="tambah-acara" class="box page" style="display:none;">
+            <h2 id="formTitle">Tambah Acara Baru</h2>
+            
+            <div class="form-group">
+                <label for="eventName">Nama Acara *</label>
+                <input type="text" id="eventName" placeholder="Masukkan nama acara" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="eventDate">Tanggal *</label>
+                <input type="date" id="eventDate" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="eventLocation">Lokasi *</label>
+                <input type="text" id="eventLocation" placeholder="Masukkan lokasi acara" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="eventPrice">Harga (Rp) *</label>
+                <input type="number" id="eventPrice" placeholder="Masukkan harga" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="eventTickets">Jumlah Tiket Tersedia *</label>
+                <input type="number" id="eventTickets" placeholder="Masukkan jumlah tiket" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="eventCategory">Kategori *</label>
+                <select id="eventCategory">
+                    <option value="seminar">Seminar</option>
+                    <option value="workshop">Workshop</option>
+                    <option value="konser">Konser</option>
+                    <option value="kompetisi">Kompetisi</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="eventImage">Gambar (URL) *</label>
+                <input type="text" id="eventImage" placeholder="Masukkan URL gambar" required>
+                <small style="color: #666;">Contoh: img/card/seminarteknologi.png</small>
+            </div>
+            
+            <div class="form-group">
+                <label for="eventDesc">Deskripsi Acara *</label>
+                <textarea id="eventDesc" placeholder="Masukkan deskripsi acara" required></textarea>
+            </div>
+            
+            <div class="modal-buttons">
+                <button type="button" class="btn-danger" onclick="cancelEvent()">Batal</button>
+                <button type="button" class="btn-primary" onclick="saveEvent()">Simpan Acara</button>
+            </div>
+            
+            <input type="hidden" id="editEventId">
+        </div>
+
+        <!-- PAGE: DAFTAR PEMESAN -->
+        <div id="pemesan" class="box page" style="display:none;">
+            <h2>Daftar Pemesan</h2>
+            <p style="color: #666; margin-bottom: 15px;">Total: <span id="totalBookingsCount">0</span> transaksi</p>
+
+            <div style="overflow-x: auto;">
+                <table id="bookingsTable">
+                    <thead>
+                        <tr>
+                            <th>No</th>
+                            <th>Nama</th>
+                            <th>Email</th>
+                            <th>Jumlah Tiket</th>
+                            <th>Acara</th>
+                            <th>Total Bayar</th>
+                            <th>Tanggal Pesan</th>
+                            <th>ID Tiket</th>
+                            <th>Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Data akan diisi oleh JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- MODAL DELETE CONFIRMATION -->
+    <div id="deleteModal" class="modal">
+        <div class="modal-content">
+            <h3>Konfirmasi Hapus</h3>
+            <p id="deleteModalText">Apakah Anda yakin ingin menghapus acara ini?</p>
+            <div class="modal-buttons">
+                <button class="btn-danger" onclick="cancelDelete()">Batal</button>
+                <button class="btn-primary" onclick="confirmDelete()">Hapus</button>
+            </div>
+            <input type="hidden" id="deleteId">
+            <input type="hidden" id="deleteType" value="event">
+        </div>
+    </div>
+
+    <script>
+        // Cek login admin
+        if (localStorage.getItem("adminLogin") !== "true") {
+            window.location.href = "login.html";
+        }
+
+        const links = document.querySelectorAll(".menu-link");
+        const pages = document.querySelectorAll(".page");
+
+        links.forEach(link => {
+            link.addEventListener("click", e => {
+                e.preventDefault();
+
+                if (!link.dataset.page) return;
+
+                pages.forEach(p => p.style.display = "none");
+                document.getElementById(link.dataset.page).style.display = "block";
+
+                links.forEach(l => l.classList.remove("active"));
+                link.classList.add("active");
+
+                // Load data jika halaman yang dipilih
+                if (link.dataset.page === "dashboard") {
+                    updateDashboard();
+                } else if (link.dataset.page === "acara") {
+                    loadEvents();
+                } else if (link.dataset.page === "pemesan") {
+                    loadBookings();
+                } else if (link.dataset.page === "tambah-acara") {
+                    document.getElementById("formTitle").textContent = "Tambah Acara Baru";
+                    document.getElementById("editEventId").value = "";
+                    // Reset form
+                    document.getElementById("eventName").value = "";
+                    // Set tanggal default besok
+                    const tomorrow = new Date();
+                    tomorrow.setDate(tomorrow.getDate() + 1);
+                    document.getElementById("eventDate").value = tomorrow.toISOString().split('T')[0];
+                    document.getElementById("eventLocation").value = "";
+                    document.getElementById("eventPrice").value = "";
+                    document.getElementById("eventTickets").value = "";
+                    document.getElementById("eventCategory").value = "seminar";
+                    document.getElementById("eventImage").value = "";
+                    document.getElementById("eventDesc").value = "";
+                }
+            });
+        });
+
+        // Logout function
+        document.getElementById("logoutBtn").addEventListener("click", function(e) {
+            e.preventDefault();
+            localStorage.removeItem("adminLogin");
+            window.location.href = "login.html";
+        });
+
+        // Data Storage
+        let events = JSON.parse(localStorage.getItem("campusEvents")) || [];
+        let bookings = JSON.parse(localStorage.getItem("campusBookings")) || [];
+
+        // Inisialisasi data contoh jika kosong
+        if (events.length === 0) {
+            events = [
+                {
+                    id: "seminar-teknologi",
+                    title: "Seminar Teknologi",
+                    date: "2026-01-12",
+                    formatted_date: "12 Januari 2026",
+                    location: "Aula Kampus",
+                    price: 20000,
+                    price_formatted: "Rp 20.000",
+                    tickets: 20,
+                    category: "seminar",
+                    image: "img/card/seminarteknologi.png",
+                    poster: "img/posseminartek.png",
+                    desc: "Seminar mengenai perkembangan teknologi terbaru di dunia industri dan pendidikan."
+                },
+                {
+                    id: "workshop-uiux",
+                    title: "Workshop UI/UX",
+                    date: "2026-01-20",
+                    formatted_date: "20 Januari 2026",
+                    location: "Lab Informatika",
+                    price: 30000,
+                    price_formatted: "Rp 30.000",
+                    tickets: 15,
+                    category: "workshop",
+                    image: "img/card/workshop.png",
+                    poster: "img/posworkshop.png",
+                    desc: "Pelatihan intensif desain UI/UX untuk mahasiswa pemula hingga menengah."
+                },
+                {
+                    id: "konser-musik",
+                    title: "Konser Musik Kampus",
+                    date: "2026-02-05",
+                    formatted_date: "5 Februari 2026",
+                    location: "Lapangan Utama",
+                    price: 50000,
+                    price_formatted: "Rp 50.000",
+                    tickets: 100,
+                    category: "konser",
+                    image: "img/card/konser.png",
+                    poster: "img/posmusik.png",
+                    desc: "Konser tahunan kampus yang menghadirkan band dan musisi mahasiswa."
+                }
+            ];
+            localStorage.setItem("campusEvents", JSON.stringify(events));
+        }
+        
+        // Inisialisasi data bookings contoh jika kosong
+        if (bookings.length === 0) {
+            // Generate beberapa booking contoh
+            const sampleBookings = [
+                {
+                    id: 'booking-1',
+                    eventId: 'seminar-teknologi',
+                    name: 'Hanif',
+                    email: 'hanif@example.com',
+                    quantity: 2,
+                    total: 40000,
+                    date: new Date('2026-01-01').toISOString(),
+                    ticketId: 'TKT-12345678-ABCD'
+                },
+                {
+                    id: 'booking-2',
+                    eventId: 'workshop-uiux',
+                    name: 'Alya',
+                    email: 'alya@gmail.com',
+                    quantity: 1,
+                    total: 30000,
+                    date: new Date('2026-01-02').toISOString(),
+                    ticketId: 'TKT-87654321-EFGH'
+                },
+                {
+                    id: 'booking-3',
+                    eventId: 'konser-musik',
+                    name: 'Budi',
+                    email: 'budi@gmail.com',
+                    quantity: 3,
+                    total: 150000,
+                    date: new Date('2026-01-03').toISOString(),
+                    ticketId: 'TKT-11223344-IJKL'
+                }
+            ];
+            bookings.push(...sampleBookings);
+            localStorage.setItem("campusBookings", JSON.stringify(bookings));
+        }
+
+        // Fungsi untuk update dashboard
+        function updateDashboard() {
+            // Update stats
+            document.getElementById("countAcara").textContent = events.length;
+            document.getElementById("countPesanan").textContent = bookings.length;
+            
+            // Hitung total pendapatan
+            let totalIncome = 0;
+            bookings.forEach(booking => {
+                totalIncome += booking.total || 0;
+            });
+            document.getElementById("totalPendapatan").textContent = "Rp " + totalIncome.toLocaleString();
+            
+            // Tampilkan acara dengan tiket tersisa sedikit
+            const lowTicketEvents = events.filter(event => event.tickets < 10);
+            const lowTicketDiv = document.getElementById("lowTicketEvents");
+            if (lowTicketEvents.length > 0) {
+                let html = "<ul>";
+                lowTicketEvents.forEach(event => {
+                    const ticketClass = event.tickets > 5 ? 'ticket-medium' : 'ticket-low';
+                    html += `<li>${event.title} - <span class="ticket-available ${ticketClass}">${event.tickets} tiket tersisa</span></li>`;
+                });
+                html += "</ul>";
+                lowTicketDiv.innerHTML = html;
+            } else {
+                lowTicketDiv.innerHTML = "<p>Tidak ada acara dengan tiket tersisa kurang dari 10.</p>";
+            }
+            
+            // Tampilkan transaksi terbaru
+            const recentBookingsDiv = document.getElementById("recentBookings");
+            const recentBookings = bookings.slice(-5).reverse(); // 5 transaksi terbaru
+            if (recentBookings.length > 0) {
+                let html = "<table style='width:100%;'>";
+                html += "<tr><th>Nama</th><th>Acara</th><th>Jumlah</th><th>Total</th><th>Tanggal</th></tr>";
+                recentBookings.forEach(booking => {
+                    const event = events.find(e => e.id === booking.eventId);
+                    const eventName = event ? event.title : 'Acara tidak ditemukan';
+                    const date = new Date(booking.date).toLocaleDateString('id-ID');
+                    html += `
+                        <tr>
+                            <td>${booking.name}</td>
+                            <td>${eventName}</td>
+                            <td>${booking.quantity} tiket</td>
+                            <td>Rp ${(booking.total || 0).toLocaleString()}</td>
+                            <td>${date}</td>
+                        </tr>
+                    `;
+                });
+                html += "</table>";
+                recentBookingsDiv.innerHTML = html;
+            } else {
+                recentBookingsDiv.innerHTML = "<p>Belum ada transaksi.</p>";
+            }
+        }
+
+        // Fungsi untuk memuat acara
+        function loadEvents() {
+            const tbody = document.querySelector("#eventsTable tbody");
+            tbody.innerHTML = "";
+            
+            events.forEach((event, index) => {
+                const row = tbody.insertRow();
+                const ticketClass = event.tickets > 10 ? 'ticket-high' : event.tickets > 5 ? 'ticket-medium' : 'ticket-low';
+                row.innerHTML = `
+                    <td>${index + 1}</td>
+                    <td>${event.title}</td>
+                    <td>${event.formatted_date}</td>
+                    <td>Rp ${event.price.toLocaleString()}</td>
+                    <td>
+                        <span class="ticket-available ${ticketClass}">
+                            ${event.tickets} tiket
+                        </span>
+                    </td>
+                    <td>
+                        <button class="btn-primary" onclick="editEvent('${event.id}')">Edit</button>
+                        <button class="btn-danger" onclick="deleteEvent('${event.id}')">Hapus</button>
+                    </td>
+                `;
+            });
+        }
+
+        // Fungsi untuk memuat pemesanan
+        function loadBookings() {
+            const tbody = document.querySelector("#bookingsTable tbody");
+            tbody.innerHTML = "";
+            
+            // Update total count
+            document.getElementById("totalBookingsCount").textContent = bookings.length;
+            
+            bookings.forEach((booking, index) => {
+                const event = events.find(e => e.id === booking.eventId);
+                const totalPrice = booking.total || (event ? event.price * booking.quantity : 0);
+                const date = new Date(booking.date);
+                const row = tbody.insertRow();
+                row.innerHTML = `
+                    <td>${index + 1}</td>
+                    <td>${booking.name}</td>
+                    <td>${booking.email}</td>
+                    <td>${booking.quantity}</td>
+                    <td>${event ? event.title : 'Acara tidak ditemukan'}</td>
+                    <td>Rp ${totalPrice.toLocaleString()}</td>
+                    <td>${date.toLocaleDateString('id-ID')}<br>
+                        <small style="color:#666;">${date.toLocaleTimeString('id-ID', {hour: '2-digit', minute:'2-digit'})}</small>
+                    </td>
+                    <td>
+                        <span class="ticket-id-badge">${booking.ticketId || 'N/A'}</span>
+                    </td>
+                    <td>
+                        <button class="btn-danger" onclick="deleteBooking('${booking.id}')">Hapus</button>
+                    </td>
+                `;
+            });
+        }
+
+        // Fungsi untuk menambah acara baru
+        function saveEvent() {
+            const name = document.getElementById("eventName").value.trim();
+            const date = document.getElementById("eventDate").value;
+            const location = document.getElementById("eventLocation").value.trim();
+            const price = parseInt(document.getElementById("eventPrice").value);
+            const tickets = parseInt(document.getElementById("eventTickets").value);
+            const category = document.getElementById("eventCategory").value;
+            const image = document.getElementById("eventImage").value.trim();
+            const desc = document.getElementById("eventDesc").value.trim();
+            const editId = document.getElementById("editEventId").value;
+            
+            // Validasi
+            if (!name || !date || !location || !price || !tickets || !image || !desc) {
+                alert("Semua field yang ditandai (*) harus diisi!");
+                return;
+            }
+            
+            if (price <= 0 || tickets <= 0) {
+                alert("Harga dan jumlah tiket harus lebih dari 0!");
+                return;
+            }
+            
+            // Format tanggal
+            const dateObj = new Date(date);
+            const formattedDate = dateObj.toLocaleDateString('id-ID', {
+                day: 'numeric',
+                month: 'long',
+                year: 'numeric'
+            });
+            
+            if (editId) {
+                // Edit acara yang sudah ada
+                const index = events.findIndex(e => e.id === editId);
+                if (index !== -1) {
+                    events[index] = {
+                        ...events[index],
+                        title: name,
+                        date: date,
+                        formatted_date: formattedDate,
+                        location: location,
+                        price: price,
+                        price_formatted: `Rp ${price.toLocaleString()}`,
+                        tickets: tickets,
+                        category: category,
+                        image: image,
+                        poster: image,
+                        desc: desc
+                    };
+                }
+            } else {
+                // Tambah acara baru
+                const newId = name.toLowerCase()
+                    .replace(/ /g, '-')
+                    .replace(/[^a-z0-9-]/g, '')
+                    .replace(/-+/g, '-');
+                const newEvent = {
+                    id: newId,
+                    title: name,
+                    date: date,
+                    formatted_date: formattedDate,
+                    location: location,
+                    price: price,
+                    price_formatted: `Rp ${price.toLocaleString()}`,
+                    tickets: tickets,
+                    category: category,
+                    image: image,
+                    poster: image,
+                    desc: desc
+                };
+                events.push(newEvent);
+            }
+            
+            // Simpan ke localStorage
+            localStorage.setItem("campusEvents", JSON.stringify(events));
+            
+            // Update dashboard dan halaman acara
+            updateDashboard();
+            loadEvents();
+            
+            // Kembali ke halaman kelola acara
+            pages.forEach(p => p.style.display = "none");
+            document.getElementById("acara").style.display = "block";
+            
+            links.forEach(l => l.classList.remove("active"));
+            document.querySelector('[data-page="acara"]').classList.add("active");
+            
+            alert("Acara berhasil disimpan!");
+        }
+
+        // Fungsi untuk edit acara
+        function editEvent(eventId) {
+            const event = events.find(e => e.id === eventId);
+            if (event) {
+                // Pindah ke halaman form
+                pages.forEach(p => p.style.display = "none");
+                document.getElementById("tambah-acara").style.display = "block";
+                
+                links.forEach(l => l.classList.remove("active"));
+                document.querySelector('[data-page="tambah-acara"]').classList.add("active");
+                
+                // Isi form dengan data acara
+                document.getElementById("formTitle").textContent = "Edit Acara";
+                document.getElementById("editEventId").value = event.id;
+                document.getElementById("eventName").value = event.title;
+                document.getElementById("eventDate").value = event.date;
+                document.getElementById("eventLocation").value = event.location;
+                document.getElementById("eventPrice").value = event.price;
+                document.getElementById("eventTickets").value = event.tickets;
+                document.getElementById("eventCategory").value = event.category;
+                document.getElementById("eventImage").value = event.image;
+                document.getElementById("eventDesc").value = event.desc;
+            }
+        }
+
+        // Fungsi untuk batalkan edit/tambah
+        function cancelEvent() {
+            pages.forEach(p => p.style.display = "none");
+            document.getElementById("acara").style.display = "block";
+            
+            links.forEach(l => l.classList.remove("active"));
+            document.querySelector('[data-page="acara"]').classList.add("active");
+        }
+
+        // Variables for delete functionality
+        let deleteType = 'event'; // 'event' or 'booking'
+        let deleteTargetId = null;
+        
+        // Fungsi untuk hapus acara
+        function deleteEvent(eventId) {
+            deleteType = 'event';
+            deleteTargetId = eventId;
+            document.getElementById("deleteId").value = eventId;
+            document.getElementById("deleteType").value = 'event';
+            document.getElementById("deleteModalText").textContent = "Apakah Anda yakin ingin menghapus acara ini?";
+            document.getElementById("deleteModal").style.display = "flex";
+        }
+        
+        // Fungsi untuk hapus booking
+        function deleteBooking(bookingId) {
+            deleteType = 'booking';
+            deleteTargetId = bookingId;
+            document.getElementById("deleteId").value = bookingId;
+            document.getElementById("deleteType").value = 'booking';
+            document.getElementById("deleteModalText").textContent = "Apakah Anda yakin ingin menghapus transaksi ini?";
+            document.getElementById("deleteModal").style.display = "flex";
+        }
+        
+        function cancelDelete() {
+            deleteTargetId = null;
+            deleteType = 'event';
+            document.getElementById("deleteModal").style.display = "none";
+        }
+        
+        function confirmDelete() {
+            if (deleteTargetId) {
+                if (deleteType === 'event') {
+                    // Hapus acara
+                    events = events.filter(e => e.id !== deleteTargetId);
+                    localStorage.setItem("campusEvents", JSON.stringify(events));
+                    
+                    // Update dashboard dan halaman acara
+                    updateDashboard();
+                    loadEvents();
+                    
+                    alert("Acara berhasil dihapus!");
+                    
+                } else if (deleteType === 'booking') {
+                    // Hapus booking
+                    // Simpan data booking yang akan dihapus untuk mengembalikan tiket
+                    const deletedBooking = bookings.find(b => b.id === deleteTargetId);
+                    if (deletedBooking) {
+                        // Kembalikan jumlah tiket yang telah dipesan
+                        const event = events.find(e => e.id === deletedBooking.eventId);
+                        if (event) {
+                            event.tickets += deletedBooking.quantity;
+                            localStorage.setItem("campusEvents", JSON.stringify(events));
+                        }
+                    }
+                    
+                    bookings = bookings.filter(b => b.id !== deleteTargetId);
+                    localStorage.setItem("campusBookings", JSON.stringify(bookings));
+                    
+                    // Update dashboard dan halaman pemesan
+                    updateDashboard();
+                    loadBookings();
+                    
+                    alert("Transaksi berhasil dihapus! Jumlah tiket telah dikembalikan.");
+                }
+                
+                // Tutup modal
+                document.getElementById("deleteModal").style.display = "none";
+                deleteTargetId = null;
+                deleteType = 'event';
+            }
+        }
+
+        // Fungsi untuk show add modal dari halaman acara
+        function showAddEventModal() {
+            pages.forEach(p => p.style.display = "none");
+            document.getElementById("tambah-acara").style.display = "block";
+            
+            links.forEach(l => l.classList.remove("active"));
+            document.querySelector('[data-page="tambah-acara"]').classList.add("active");
+            
+            // Reset form
+            document.getElementById("formTitle").textContent = "Tambah Acara Baru";
+            document.getElementById("editEventId").value = "";
+            document.getElementById("eventName").value = "";
+            // Set tanggal default besok
+            const tomorrow = new Date();
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            document.getElementById("eventDate").value = tomorrow.toISOString().split('T')[0];
+            document.getElementById("eventLocation").value = "";
+            document.getElementById("eventPrice").value = "";
+            document.getElementById("eventTickets").value = "";
+            document.getElementById("eventCategory").value = "seminar";
+            document.getElementById("eventImage").value = "";
+            document.getElementById("eventDesc").value = "";
+        }
+
+        // Inisialisasi saat halaman dimuat
+        updateDashboard();
+        loadEvents();
+        loadBookings();
+    </script>
+
+</body>
+</html>
